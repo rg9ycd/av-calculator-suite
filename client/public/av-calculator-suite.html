@@ -292,8 +292,8 @@
         <header class="topbar">
           <div>
             <div class="eyebrow" id="activeEyebrow">01 / Screen Geometry</div>
-            <h1 id="activeTitle">画面サイズを、商談中にすぐ確認</h1>
-            <p class="topbar-copy" id="activeDescription">対角インチ、横幅、または高さから、投影サイズと面積を即時に換算します。</p>
+            <h1 id="activeTitle">画面サイズを計算</h1>
+            <p class="topbar-copy" id="activeDescription">対角インチ、横幅、または高さから、投影サイズと面積を換算します。</p>
           </div>
           <div class="top-actions"><div class="copy-scope" id="copyScope" aria-live="polite"><span>コピー対象</span><strong>対角／横幅／高さ／面積／アスペクト比</strong></div><button class="action" id="copyCurrent" type="button" aria-describedby="copyScope">現在の結果をコピー</button><button class="action primary" id="resetAll" type="button">入力を初期化</button></div>
         </header>
@@ -476,10 +476,10 @@
       const $ = (id) => document.getElementById(id);
       const aspects = { "16:9": [16, 9], "16:10": [16, 10], "4:3": [4, 3] };
       const sectionMeta = {
-        screen: ["01 / Screen Geometry", "画面サイズを、商談中にすぐ確認", "対角インチ、横幅、または高さから、投影サイズと面積を即時に換算します。", "対角／横幅／高さ／面積／アスペクト比"],
-        lux: ["02 / Screen Illuminance", "環境光に対して、必要な明るさを提案", "スクリーン面積とANSIルーメンから照度を求め、5:1・10:1の必要光束を併記します。", "環境光／面積／ANSI lm／スクリーン照度／5:1・10:1の必要光束"],
+        screen: ["01 / Screen Geometry", "画面サイズを計算", "対角インチ、横幅、または高さから、投影サイズと面積を換算します。", "対角／横幅／高さ／面積／アスペクト比"],
+        lux: ["02 / Screen Illuminance", "環境光に対して、必要な明るさを提案", "スクリーン面積とANSIルーメンから照度を求め、環境照度の5～10倍を必要輝度としてプロジェクターを提案します。", "環境光／面積／ANSI lm／スクリーン照度／5:1・10:1の必要光束"],
         throw: ["03 / Throw Ratio", "引き距離と画面幅から、レンズ条件を整理", "プロジェクター本体からスクリーンまでの距離を基準に、スローレシオまたは投影可能サイズを算出します。", "本体基準の引き距離／レシオ／横幅／高さ／対角／面積"],
-        blend: ["04 / Horizontal Blend", "2面の重複幅から、全体の投影面とキャンバスを確認", "ブレンド率またはピクセル数を指定し、物理サイズと最終解像度を連動表示します。", "1台分サイズ／ブレンド幅（px・%）／全体投影幅／全体キャンバス"],
+        blend: ["04 / Horizontal Blend", "2面の重複幅から、全体の投影サイズを確認", "ブレンド幅の率かピクセル数を指定し、全体のスクリーンサイズと解像度を表示します。", "1台分サイズ／ブレンド幅（px・%）／全体投影幅／全体キャンバス"],
         video: ["05 / Video Data", "映像仕様から、必要なストレージ容量を見積もる", "非圧縮のデータレートと、MP4の平均ビットレートベースの概算を同時に確認します。", "映像尺／非圧縮容量・データレート／MP4推定容量"]
       };
       const state = { screen: {}, lux: {}, throw: {}, blend: {}, video: {}, active: "screen", throwMode: "screen" };
