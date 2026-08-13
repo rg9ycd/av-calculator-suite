@@ -25,8 +25,8 @@
       --green: #08785e;
       --green-soft: #e1f5ed;
       --red: #b34444;
-      --radius: 16px;
-      --shadow: 0 10px 28px rgba(19, 38, 53, .08), 0 2px 4px rgba(19, 38, 53, .04);
+      --radius: 9px;
+      --shadow: 0 8px 20px rgba(19, 38, 53, .065), 0 1px 2px rgba(19, 38, 53, .06);
       --ease-out: cubic-bezier(.23, 1, .32, 1);
     }
     * { box-sizing: border-box; }
@@ -86,7 +86,7 @@
       padding: 9px 12px 9px 15px;
       color: #dce9f2;
       background: transparent;
-      border-radius: 10px;
+      border-radius: 5px;
       text-align: left;
       cursor: pointer;
       transition: background 180ms var(--ease-out), color 180ms var(--ease-out), transform 160ms var(--ease-out);
@@ -94,8 +94,8 @@
     .nav-item::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 2px; background: transparent; }
     .nav-item:hover { background: rgba(255,255,255,.07); }
     .nav-item:active, .action:active, .link-button:active { transform: scale(.97); }
-    .nav-item.active { color: #fff; background: rgba(255,255,255,.12); }
-    .nav-item.active::before { background: #41a6ff; }
+    .nav-item.active { color: #fff; background: linear-gradient(90deg, rgba(61,157,238,.23), rgba(255,255,255,.08)); }
+    .nav-item.active::before { background: #41a6ff; box-shadow: 12px 0 0 -8px rgba(65,166,255,.45); }
     .nav-num { display: inline-block; width: 22px; color: #70bbf8; font-family: "IBM Plex Sans JP", sans-serif; font-weight: 700; font-size: 12px; }
     .nav-label { font-weight: 600; font-size: 13px; }
     .nav-caption { display: block; margin: 1px 0 0 22px; color: #9fb1c1; font-size: 10px; }
@@ -110,7 +110,7 @@
     h1 { margin: 5px 0 0; font-family: "IBM Plex Sans JP", sans-serif; font-size: clamp(26px, 3.1vw, 39px); line-height: 1.18; letter-spacing: -.035em; }
     .topbar-copy { max-width: 480px; margin: 6px 0 0; color: var(--muted); font-size: 13px; }
     .top-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
-    .copy-scope { flex: 1 1 250px; max-width: 390px; align-self: stretch; display: flex; flex-direction: column; justify-content: center; padding: 6px 10px; color: #4e6270; border-left: 3px solid #86b8ed; background: rgba(255,255,255,.52); font-size: 10px; line-height: 1.35; }
+    .copy-scope { flex: 1 1 250px; max-width: 390px; align-self: stretch; display: flex; flex-direction: column; justify-content: center; padding: 6px 10px 6px 13px; color: #4e6270; border-left: 3px solid #0d5bd7; background: linear-gradient(90deg, rgba(232,240,255,.88), rgba(255,255,255,.25)); font-family: "IBM Plex Sans JP", sans-serif; font-size: 10px; line-height: 1.35; }
     .copy-scope strong { color: var(--blue-deep); font-size: 11px; }
     .action, .link-button {
       min-height: 42px;
@@ -137,14 +137,17 @@
       align-items: start;
     }
     .panel {
+      position: relative;
       overflow: hidden;
-      background: rgba(255,253,247,.9);
-      border: 1px solid rgba(184, 194, 194, .76);
+      background: repeating-linear-gradient(0deg, rgba(255,253,247,.93) 0, rgba(255,253,247,.93) 34px, rgba(19,57,78,.035) 35px, rgba(255,253,247,.93) 36px);
+      border: 1px solid #bec9cd;
       border-radius: var(--radius);
       box-shadow: var(--shadow);
     }
-    .panel-header { padding: 18px 21px 15px; border-bottom: 1px solid var(--line); }
-    .panel-kicker { color: var(--blue); font-family: "IBM Plex Sans JP", sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .1em; }
+    .panel:not(.result-panel)::before { content: ""; position: absolute; z-index: 2; top: 0; left: 0; width: 68px; height: 4px; background: var(--blue); clip-path: polygon(0 0, 100% 0, 78% 100%, 0 100%); }
+    .panel-header { position: relative; padding: 18px 21px 15px; border-bottom: 1px solid var(--line); background: linear-gradient(90deg, rgba(237,244,248,.72), rgba(255,255,255,0)); }
+    .panel-header::after { content: ""; position: absolute; left: 21px; right: 21px; bottom: -1px; height: 1px; background: linear-gradient(90deg, var(--blue) 0 40px, transparent 40px); }
+    .panel-kicker { color: var(--blue); font-family: "IBM Plex Sans JP", sans-serif; font-weight: 700; font-size: 10px; letter-spacing: .14em; }
     .panel-title { margin: 2px 0 0; font-family: "IBM Plex Sans JP", sans-serif; font-size: 20px; letter-spacing: -.02em; }
     .panel-intro { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
     .panel-body { padding: 21px; }
@@ -153,7 +156,7 @@
     .field { min-width: 0; }
     label, .field-label { display: block; margin: 0 0 6px; color: #40515f; font-size: 12px; font-weight: 700; }
     .field-hint { display: block; margin-top: 5px; color: #73808a; font-size: 10px; line-height: 1.5; }
-    input[type="number"], select {
+    input[type="number"], input[type="text"], select {
       width: 100%;
       min-height: 45px;
       padding: 0 11px;
@@ -166,17 +169,18 @@
       font-variant-numeric: tabular-nums;
       transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
     }
-    input[type="number"]:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(13,91,215,.13); outline: 0; }
+    input[type="number"]:focus, input[type="text"]:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(13,91,215,.13); outline: 0; }
     .input-unit { position: relative; }
     .input-unit input { padding-right: 47px; }
     .input-unit span { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); color: #71808b; font-family: "IBM Plex Sans JP", sans-serif; font-size: 11px; font-weight: 700; pointer-events: none; }
     .rule { height: 1px; margin: 20px 0; background: var(--line); }
-    .inline-note { display: flex; gap: 9px; align-items: flex-start; margin-top: 16px; padding: 11px 12px; color: #53636e; background: #f1f4f2; border-radius: 8px; font-size: 11px; line-height: 1.65; }
+    .inline-note { display: flex; gap: 9px; align-items: flex-start; margin-top: 16px; padding: 11px 12px; color: #53636e; border-left: 3px solid #86b8ed; background: linear-gradient(90deg, #eef4f6, #f8faf8); border-radius: 3px; font-size: 11px; line-height: 1.65; }
     .inline-note b { color: var(--blue-deep); white-space: nowrap; }
     .inline-note a { color: var(--blue-deep); font-weight: 700; }
-    .result-panel { position: relative; background: #10293d; border-color: #10293d; color: #ecf5ff; }
+    .result-panel { position: relative; background: repeating-linear-gradient(0deg, #10293d 0, #10293d 34px, rgba(255,255,255,.025) 35px, #10293d 36px); border-color: #10293d; color: #ecf5ff; }
     .result-panel::after { content: ""; position: absolute; z-index: 0; width: 200px; height: 200px; top: -83px; right: -75px; border: 1px solid rgba(95,187,255,.35); border-radius: 50%; box-shadow: 0 0 0 26px rgba(95,187,255,.05), 0 0 0 53px rgba(95,187,255,.04); pointer-events: none; }
-    .result-panel .panel-header { border-color: rgba(255,255,255,.15); }
+    .result-panel .panel-header { border-color: rgba(255,255,255,.15); background: linear-gradient(90deg, rgba(83,154,208,.12), transparent); }
+    .result-panel .panel-header::after { background: linear-gradient(90deg, #49a9fd 0 40px, transparent 40px); }
     .result-panel .panel-kicker { color: #69beff; }
     .result-panel .panel-title { color: #fff; }
     .result-panel .panel-intro { color: #b8cad7; }
@@ -187,8 +191,8 @@
     .result-number span { margin-left: 7px; color: #91cfff; font-size: .34em; letter-spacing: 0; }
     .result-sub { color: #b8cad7; font-size: 11px; }
     .metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
-    .metric { padding: 12px 12px 11px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.13); border-radius: 10px; }
-    .metric-label { display: block; color: #b2c7d7; font-size: 10px; line-height: 1.35; }
+    .metric { padding: 12px 12px 11px; background: rgba(255,255,255,.065); border: 1px solid rgba(255,255,255,.13); border-left: 2px solid rgba(73,169,253,.48); border-radius: 4px; }
+    .metric-label { display: block; color: #b2c7d7; font-family: "IBM Plex Sans JP", sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .07em; line-height: 1.35; }
     .metric-value { display: block; margin-top: 4px; color: #fff; font-family: "IBM Plex Sans JP", sans-serif; font-size: 18px; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
     .metric-value small { color: #98b6c9; font-size: 10px; font-weight: 500; }
     .result-footer { margin-top: 15px; color: #b8cad7; font-size: 10px; line-height: 1.6; }
@@ -196,12 +200,12 @@
     .result-actions { display: flex; gap: 8px; margin-top: 18px; }
     .result-actions .action { color: #eaf6ff; border-color: rgba(161,207,242,.55); background: rgba(255,255,255,.06); }
     .result-actions .action:hover { background: rgba(255,255,255,.14); }
-    .results-table-wrap { margin-top: 20px; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+    .results-table-wrap { margin-top: 20px; overflow-x: auto; border: 1px solid var(--line); border-top: 3px solid var(--blue); border-radius: 5px; }
     .results-table { width: 100%; min-width: 530px; border-collapse: collapse; background: rgba(255,255,255,.56); font-size: 12px; }
     .results-table caption { padding: 12px 13px; color: #40515f; background: #f1f4f2; text-align: left; font-weight: 700; }
     .results-table th, .results-table td { padding: 10px 12px; border-bottom: 1px solid #e0e4df; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .results-table tr:last-child td { border-bottom: 0; }
-    .results-table th { color: #657480; font-size: 10px; font-weight: 700; }
+    .results-table th { color: #657480; font-family: "IBM Plex Sans JP", sans-serif; font-size: 9px; font-weight: 700; letter-spacing: .08em; }
     .results-table th:first-child, .results-table td:first-child { text-align: left; }
     .selected-row { color: var(--blue-deep); background: #edf4ff; font-weight: 700; }
     .status-strip { display: flex; align-items: stretch; gap: 1px; overflow: hidden; margin-bottom: 20px; border: 1px solid #c4d1db; border-radius: 10px; background: #c4d1db; }
@@ -228,7 +232,7 @@
     .check-control:checked::before { transform: translateX(18px); }
     .audio-settings.off { opacity: .45; pointer-events: none; }
     .formula { margin: 0; padding: 11px 13px; color: #586974; border-left: 3px solid #8db8ed; background: #edf5ff; font-family: "IBM Plex Sans JP", sans-serif; font-size: 11px; font-variant-numeric: tabular-nums; }
-    .info-card { display: grid; grid-template-columns: 1fr 128px; gap: 16px; align-items: center; margin-top: 20px; padding: 17px 18px; border: 1px solid #cdd9df; border-radius: var(--radius); background: rgba(255,253,247,.8); }
+    .info-card { display: grid; grid-template-columns: 1fr 128px; gap: 16px; align-items: center; margin-top: 20px; padding: 17px 18px; border: 1px solid #cdd9df; border-left: 4px solid var(--blue); border-radius: 5px; background: rgba(255,253,247,.8); }
     .info-card h3 { margin: 0 0 4px; font-family: "IBM Plex Sans JP", sans-serif; font-size: 15px; }
     .info-card p { margin: 0; color: var(--muted); font-size: 11px; }
     .info-card img { width: 100%; max-height: 95px; object-fit: contain; object-position: right center; mix-blend-mode: multiply; }
@@ -240,6 +244,41 @@
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
     .source-note { margin-top: 22px; color: #6d7b84; font-size: 10px; line-height: 1.7; }
     .source-note a { color: var(--blue-deep); font-weight: 700; }
+    .case-backdrop { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 20px; background: rgba(10, 29, 44, .52); opacity: 0; pointer-events: none; transition: opacity 180ms var(--ease-out); }
+    .case-backdrop.open { opacity: 1; pointer-events: auto; }
+    .case-modal { width: min(800px, 100%); max-height: min(760px, calc(100vh - 40px)); overflow: hidden; display: flex; flex-direction: column; color: var(--ink); border: 1px solid rgba(255,255,255,.55); border-top: 4px solid var(--blue); border-radius: 7px; background: var(--panel); box-shadow: 0 24px 70px rgba(5, 20, 31, .35); transform: translateY(10px) scale(.985); transition: transform 220ms var(--ease-out); }
+    .case-backdrop.open .case-modal { transform: translateY(0) scale(1); }
+    .case-modal-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 21px 22px 17px; border-bottom: 1px solid var(--line); }
+    .case-modal-header h2 { margin: 2px 0 0; font-family: "IBM Plex Sans JP", sans-serif; font-size: 21px; letter-spacing: -.02em; }
+    .case-modal-header p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+    .icon-button { width: 36px; height: 36px; flex: 0 0 36px; color: #53646f; border: 1px solid #c8d2d7; border-radius: 8px; background: #fff; font-size: 21px; line-height: 1; cursor: pointer; }
+    .case-modal-content { overflow: auto; padding: 20px 22px 22px; }
+    .case-save-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+    .case-save-grid .action { min-height: 45px; }
+    .case-context { display: flex; align-items: center; gap: 7px; margin: 13px 0 17px; color: #567080; font-size: 11px; }
+    .case-context strong { display: inline-block; padding: 3px 7px; color: var(--blue-deep); border-radius: 4px; background: var(--blue-soft); font-family: "IBM Plex Sans JP", sans-serif; font-size: 10px; }
+    .case-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .case-actions .action.danger { color: var(--red); border-color: #e8c5c5; }
+    .case-actions .action.danger:hover { background: #fff1f1; }
+    .case-list-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 17px 0 10px; }
+    .case-list-title h3 { margin: 0; font-family: "IBM Plex Sans JP", sans-serif; font-size: 15px; }
+    .case-list-title span { color: var(--muted); font-size: 11px; }
+    .case-empty { padding: 25px 16px; color: #74828c; border: 1px dashed #b9c4c9; border-radius: 10px; background: #fafcfb; text-align: center; font-size: 12px; }
+    .case-entry { margin-top: 9px; overflow: hidden; border: 1px solid #d6dddf; border-radius: 10px; background: #fff; }
+    .case-entry summary { display: flex; align-items: center; gap: 10px; padding: 12px 13px; cursor: pointer; list-style: none; }
+    .case-entry summary::-webkit-details-marker { display: none; }
+    .case-entry summary::before { content: "+"; width: 20px; height: 20px; display: grid; place-items: center; color: var(--blue-deep); border: 1px solid #b9d1ee; border-radius: 50%; background: #f0f6ff; font-family: "IBM Plex Sans JP", sans-serif; font-weight: 700; }
+    .case-entry[open] summary::before { content: "−"; }
+    .case-entry-name { min-width: 0; flex: 1; overflow: hidden; color: var(--ink); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .case-entry-tool { padding: 3px 6px; color: var(--blue-deep); border-radius: 4px; background: var(--blue-soft); font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .case-entry-date { color: #74828c; font-size: 10px; white-space: nowrap; }
+    .case-entry-body { padding: 0 13px 13px 43px; }
+    .case-details-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .case-details-table td { padding: 6px 3px; border-top: 1px solid #e3e7e5; }
+    .case-details-table td:first-child { width: 44%; color: #657580; }
+    .case-details-table td:last-child { color: var(--ink); font-family: "IBM Plex Sans JP", sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .case-entry-body .action { min-height: 32px; margin-top: 9px; color: var(--red); border-color: #e7c5c5; font-size: 11px; }
+    .case-storage-note { margin: 13px 0 0; color: #78868e; font-size: 10px; line-height: 1.6; }
     .hidden { display: none !important; }
     @media (max-width: 930px) {
       .rail { width: 214px; flex-basis: 214px; padding: 22px 12px 18px; }
@@ -260,7 +299,7 @@
       .page { padding: 24px 14px 35px; }
       .topbar { display: block; padding-bottom: 20px; }.topbar-copy { margin-top: 8px; }.top-actions { justify-content: flex-start; margin-top: 15px; }.copy-scope { flex-basis: 100%; max-width: none; }
       .workbench { grid-template-columns: 1fr; gap: 14px; }.result-panel { order: -1; }
-      .panel-header, .panel-body { padding-left: 16px; padding-right: 16px; }
+      .panel-header, .panel-body { padding-left: 16px; padding-right: 16px; }.case-backdrop { padding: 10px; }.case-modal-header, .case-modal-content { padding-left: 16px; padding-right: 16px; }.case-save-grid { grid-template-columns: 1fr; }.case-entry-date { display: none; }.case-entry-body { padding-left: 14px; }
       .result-number { font-size: 43px; }.field-grid { gap: 11px; }.info-card { grid-template-columns: 1fr 85px; }.reference-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 420px) {
@@ -295,7 +334,7 @@
             <h1 id="activeTitle">画面サイズを計算</h1>
             <p class="topbar-copy" id="activeDescription">対角インチ、横幅、または高さから、投影サイズと面積を換算します。</p>
           </div>
-          <div class="top-actions"><div class="copy-scope" id="copyScope" aria-live="polite"><span>コピー対象</span><strong>対角／横幅／高さ／面積／アスペクト比</strong></div><button class="action" id="copyCurrent" type="button" aria-describedby="copyScope">現在の結果をコピー</button><button class="action primary" id="resetAll" type="button">入力を初期化</button></div>
+          <div class="top-actions"><div class="copy-scope" id="copyScope" aria-live="polite"><span>コピー対象</span><strong>対角／横幅／高さ／面積／アスペクト比</strong></div><button class="action" id="openCasePanel" type="button">案件を保存・一覧</button><button class="action" id="copyCurrent" type="button" aria-describedby="copyScope">現在の結果をコピー</button><button class="action primary" id="resetAll" type="button">入力を初期化</button></div>
         </header>
 
         <section class="calc-section active" id="calc-screen" aria-labelledby="screen-heading">
@@ -469,6 +508,19 @@
       </div>
     </main>
   </div>
+  <div class="case-backdrop" id="casePanel" aria-hidden="true">
+    <section class="case-modal" role="dialog" aria-modal="true" aria-labelledby="caseModalTitle">
+      <header class="case-modal-header"><div><div class="panel-kicker">PROJECT RESULTS</div><h2 id="caseModalTitle">案件保存・一覧</h2><p>現在開いているツールの計算結果を、案件名を付けて端末内へ保存します。</p></div><button class="icon-button" id="closeCasePanel" type="button" aria-label="案件保存・一覧を閉じる">×</button></header>
+      <div class="case-modal-content">
+        <div class="case-save-grid"><div class="field"><label for="caseName">案件名</label><input id="caseName" type="text" maxlength="80" autocomplete="off" placeholder="例：2026 春季製品発表会" /><small class="field-hint">同名の案件も、保存時点ごとの計算結果として別々に記録されます。</small></div><button class="action primary" id="saveCase" type="button">現在の結果を保存</button></div>
+        <p class="case-context">保存対象のツール：<strong id="caseActiveTool">画面サイズ</strong></p>
+        <div class="case-actions"><button class="action" id="exportCases" type="button">CSVをエクスポート</button><button class="action danger" id="clearCases" type="button">保存済みをすべて削除</button></div>
+        <div class="case-list-title"><h3>保存済みの計算結果</h3><span id="caseCount">0件</span></div>
+        <div id="caseList"></div>
+        <p class="case-storage-note">保存データはこの端末・このブラウザ内にのみ保存されます。ブラウザのサイトデータを消去すると、保存済み案件も削除されます。</p>
+      </div>
+    </section>
+  </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script>
@@ -497,6 +549,32 @@
       };
       const showToast = (message) => { const toast = $("toast"); toast.textContent = message; toast.classList.add("show"); window.clearTimeout(showToast.timer); showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200); };
       const copyText = async (text) => { try { await navigator.clipboard.writeText(text); showToast("計算結果をクリップボードにコピーしました。"); } catch { const area = document.createElement("textarea"); area.value = text; document.body.appendChild(area); area.select(); document.execCommand("copy"); area.remove(); showToast("計算結果をクリップボードにコピーしました。"); } };
+      const caseStorageKey = "avCalculatorSuite.savedResults.v1";
+      const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", "\"": "&quot;" }[char]));
+      const loadCases = () => { try { const saved = JSON.parse(localStorage.getItem(caseStorageKey) || "[]"); return Array.isArray(saved) ? saved : []; } catch { return []; } };
+      const persistCases = (records) => { try { localStorage.setItem(caseStorageKey, JSON.stringify(records)); return true; } catch { showToast("保存領域に書き込めませんでした。ブラウザの設定を確認してください。"); return false; } };
+      const formatSavedAt = (iso) => { const date = new Date(iso); return Number.isNaN(date.getTime()) ? "日時不明" : new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(date); };
+      const activeToolLabel = () => ({ screen: "画面サイズ", lux: "投影照度", throw: "スローレシオ", blend: "2面ブレンド", video: "映像容量" }[state.active]);
+      function getActiveResultRows() {
+        const s = state;
+        if (s.active === "screen") return [["アスペクト比", $("screenAspect").value], ["対角サイズ", `${fixed(s.screen.diagIn, 1)} inch`], ["横幅", `${fixed(s.screen.width, 0)} mm`], ["高さ", `${fixed(s.screen.height, 0)} mm`], ["投影面積", `${fixed(s.screen.area, 2)} m²`]];
+        if (s.active === "lux") return [["環境照度", `${fixed(s.lux.env, 0)} lx`], ["スクリーン面積", `${fixed(s.lux.area, 2)} m²`], ["プロジェクター輝度", `${fixed(s.lux.lumens, 0)} ANSI lm`], ["スクリーン照度", `${fixed(s.lux.actualLux, 0)} lx`], ["5:1に必要な輝度", `${fixed(s.lux.needed5, 0)} ANSI lm`], ["10:1に必要な輝度", `${fixed(s.lux.needed10, 0)} ANSI lm`]];
+        if (s.active === "throw") return [["計算モード", state.throwMode === "screen" ? "画面サイズからレシオ" : "レシオから画面サイズ"], ["引き距離（本体基準）", `${fixed(s.throw.distance, 2)} m`], ["スローレシオ", `${fixed(s.throw.ratio, 2)}:1`], ["画面横幅", `${fixed(s.throw.geo.width / 1000, 3)} m`], ["画面高さ", `${fixed(s.throw.geo.height / 1000, 3)} m`], ["対角サイズ", `${fixed(s.throw.geo.diagIn, 1)} inch`], ["投影面積", `${fixed(s.throw.geo.area, 2)} m²`]];
+        if (s.active === "blend") return [["アスペクト比", $("blendAspect").value], ["1台分の画面サイズ", `${fixed(s.blend.widthM, 2)} m × ${fixed(s.blend.heightM, 2)} m`], ["1台分の解像度", `${fixed(s.blend.pxW, 0)} × ${fixed(s.blend.pxH, 0)} px`], ["ブレンド幅", `${fixed(s.blend.blendPx, 0)} px（${fixed(s.blend.blendPct, 1)}%）`], ["全体投影幅", `${fixed(s.blend.totalWidth, 2)} m`], ["全体キャンバス", `${fixed(s.blend.totalPx, 0)} × ${fixed(s.blend.pxH, 0)} px`], ["全体面積", `${fixed(s.blend.totalArea, 2)} m²`]];
+        return [["映像尺", durationText()], ["非圧縮合計容量", displayDecimalByte(s.video.totalBytes)], ["非圧縮映像データレート", `${fixed(s.video.videoRate * 8 / 1e9, 2)} Gbps`], ["MP4推定容量", displayDecimalByte(s.video.mp4Total)], ["MP4映像ビットレート", `${fixed(s.video.mp4VideoRate / 1e6, 2)} Mbps`], ["MP4音声ビットレート", `${fixed(s.video.mp4AudioRate / 1e3, 0)} kbps`]];
+      }
+      function renderCaseList() {
+        const records = loadCases().sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
+        $("caseCount").textContent = `${records.length}件`;
+        if (!records.length) { $("caseList").innerHTML = '<div class="case-empty">保存済みの計算結果はありません。案件名を入力して、現在の結果を保存してください。</div>'; return; }
+        $("caseList").innerHTML = records.map((record) => `<details class="case-entry"><summary><span class="case-entry-name">${escapeHtml(record.name)}</span><span class="case-entry-tool">${escapeHtml(record.toolLabel)}</span><span class="case-entry-date">${escapeHtml(formatSavedAt(record.savedAt))}</span></summary><div class="case-entry-body"><table class="case-details-table"><tbody>${record.rows.map(([label, value]) => `<tr><td>${escapeHtml(label)}</td><td>${escapeHtml(value)}</td></tr>`).join("")}</tbody></table><button class="action" type="button" data-delete-case="${escapeHtml(record.id)}">この結果を削除</button></div></details>`).join("");
+        document.querySelectorAll("[data-delete-case]").forEach((button) => button.addEventListener("click", () => { const remaining = loadCases().filter((record) => record.id !== button.dataset.deleteCase); if (persistCases(remaining)) { renderCaseList(); showToast("保存済みの計算結果を削除しました。"); } }));
+      }
+      function openCasePanel() { $("caseActiveTool").textContent = activeToolLabel(); $("casePanel").classList.add("open"); $("casePanel").setAttribute("aria-hidden", "false"); renderCaseList(); window.setTimeout(() => $("caseName").focus(), 180); }
+      function closeCasePanel() { $("casePanel").classList.remove("open"); $("casePanel").setAttribute("aria-hidden", "true"); }
+      function saveCurrentCase() { const name = $("caseName").value.trim(); if (!name) { showToast("案件名を入力してください。"); $("caseName").focus(); return; } const records = loadCases(); const record = { id: `${Date.now()}-${Math.random().toString(16).slice(2)}`, name, savedAt: new Date().toISOString(), tool: state.active, toolLabel: activeToolLabel(), rows: getActiveResultRows() }; if (persistCases(records.concat(record))) { $("caseName").value = ""; renderCaseList(); showToast(`「${name}」の計算結果を保存しました。`); } }
+      function csvCell(value) { return `"${String(value).replace(/"/g, '""')}"`; }
+      function exportCasesCsv() { const records = loadCases(); if (!records.length) { showToast("エクスポートする保存済み結果がありません。"); return; } const rows = [["案件名", "保存日時", "ツール", "項目", "値"]]; records.forEach((record) => record.rows.forEach(([label, value]) => rows.push([record.name, formatSavedAt(record.savedAt), record.toolLabel, label, value]))); const csv = "\uFEFF" + rows.map((row) => row.map(csvCell).join(",")).join("\r\n"); const blob = new Blob([csv], { type: "text/csv;charset=utf-8" }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); const stamp = new Date().toISOString().slice(0, 10).replaceAll("-", ""); link.href = url; link.download = `AV_Calculator_案件一覧_${stamp}.csv`; document.body.appendChild(link); link.click(); link.remove(); window.setTimeout(() => URL.revokeObjectURL(url), 0); showToast("CSVファイルをエクスポートしました。"); }
 
       function geometryFromDiagonal(diagMm, aspect) { const [wRatio, hRatio] = aspects[aspect]; const divisor = Math.hypot(wRatio, hRatio); const width = diagMm * wRatio / divisor; const height = diagMm * hRatio / divisor; return { width, height, diagMm, diagIn: diagMm / 25.4, area: width * height / 1e6 }; }
       function geometryFromWidth(width, aspect) { const [wRatio, hRatio] = aspects[aspect]; const height = width * hRatio / wRatio; const diagMm = Math.hypot(width, height); return { width, height, diagMm, diagIn: diagMm / 25.4, area: width * height / 1e6 }; }
@@ -632,9 +710,10 @@
       $("sendThrowToLux").addEventListener("click", () => { $("luxArea").value = state.throw.geo.area.toFixed(2); updateLux(); activate("lux"); showToast("スローレシオ計算の面積を照度計算へ反映しました。"); });
       $("sendBlendToVideo").addEventListener("click", () => { $("rawWidth").value = state.blend.totalPx; $("rawHeight").value = state.blend.pxH; $("mp4Width").value = state.blend.totalPx; $("mp4Height").value = state.blend.pxH; updateVideo(); activate("video"); showToast("2面ブレンドの全体キャンバスを映像容量へ反映しました。"); });
       $("copyCurrent").addEventListener("click", copyCurrentSummary); $("copyLux").addEventListener("click", () => { activate("lux"); copyCurrentSummary(); }); $("copyVideo").addEventListener("click", () => { activate("video"); copyCurrentSummary(); });
+      $("openCasePanel").addEventListener("click", openCasePanel); $("closeCasePanel").addEventListener("click", closeCasePanel); $("saveCase").addEventListener("click", saveCurrentCase); $("exportCases").addEventListener("click", exportCasesCsv); $("clearCases").addEventListener("click", () => { if (!loadCases().length) { showToast("削除する保存済み結果がありません。"); return; } if (window.confirm("保存済みの計算結果をすべて削除します。元に戻せません。")) { if (persistCases([])) { renderCaseList(); showToast("保存済みの計算結果をすべて削除しました。"); } } }); $("casePanel").addEventListener("click", (event) => { if (event.target === $("casePanel")) closeCasePanel(); }); window.addEventListener("keydown", (event) => { if (event.key === "Escape" && $("casePanel").classList.contains("open")) closeCasePanel(); });
       $("resetAll").addEventListener("click", () => { document.querySelectorAll("input").forEach((input) => { if (input.type === "checkbox") input.checked = input.defaultChecked; else input.value = input.defaultValue; }); document.querySelectorAll("select").forEach((select) => select.value = select.defaultValue); state.throwMode = "screen"; setThrowMode("screen"); updateAll(); showToast("すべての入力を初期値に戻しました。"); });
       document.querySelectorAll("select").forEach((select) => select.addEventListener("change", () => select.dispatchEvent(new Event("input"))));
-      updateAll();
+      updateAll(); renderCaseList();
     })();
   </script>
 </body>
