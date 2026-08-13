@@ -1,5 +1,9 @@
 # 実装タスク
 
+- [x] GitHubのmainブランチへPagesルート向けルーティング修正を反映する。
+- [ ] GitHub PagesのルートURLで404が解消したことを確認する。
+- [ ] GitHub Pagesの公開状態、正しいURL、404の原因を確認する。
+- [ ] 必要に応じてPages公開設定または静的サイト構成を修正し、表示を検証する。
 - [x] pnpm/action-setup側の固定バージョン指定を削除し、package.jsonのpackageManager指定へ統一する。
 - [x] pnpmバージョン競合を解消したワークフローをGitHubへ反映し、再デプロイを案内する。
 - [x] GitHub Actionsでpnpmを明示的にセットアップし、Pagesビルドの実行失敗を修正する。

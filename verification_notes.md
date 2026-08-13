@@ -79,3 +79,9 @@
 GitHub Actionsの初回実行では、`pnpm` 実行ファイルがセットアップ前に必要となりビルドが停止した。公開ワークフローを修正し、Node.jsセットアップとpnpmキャッシュの前に `pnpm/action-setup@v4` でpnpm 10を明示的にセットアップする順序へ変更した。
 
 次の実行では、`pnpm/action-setup@v4` 側の固定バージョン指定と `package.json` の `packageManager` 指定が競合したため、ワークフロー側の固定指定を削除した。pnpmのバージョンはリポジトリの `packageManager` 設定から一意に決まる構成となった。
+
+## GitHub Pagesルート表示
+
+`https://rg9ycd.github.io/av-calculator-suite/av-calculator-suite.html` では単一HTMLアプリが正常に表示される一方、リポジトリのルートURLではReactの404画面が表示された。公開成果物とGitHub Pagesのデプロイ自体は正常であり、GitHub Pagesのリポジトリ配下パス `/av-calculator-suite/` をReactルーターがルートとして認識していないことが原因である。
+
+標準プレビュー用のルーターに `/av-calculator-suite/` を追加し、静的公開時のフォールバックも完成版への遷移先とした。GitHub Actions環境のベースパスで静的ビルドが正常に完了することを確認した。この修正は次回チェックポイントでmainへ反映される。
