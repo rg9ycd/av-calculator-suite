@@ -5,7 +5,7 @@ import { useEffect } from "react";
  */
 export default function Home() {
   useEffect(() => {
-    window.location.replace("/av-calculator-suite.html");
+    window.location.replace("av-calculator-suite.html");
   }, []);
 
   return (
