@@ -101,6 +101,7 @@
     .nav-caption { display: block; margin: 1px 0 0 22px; color: #9fb1c1; font-size: 10px; }
     .rail-footer { margin-top: auto; padding: 24px 8px 0; color: #a7bac9; font-size: 11px; line-height: 1.65; }
     .rail-footer strong { display: block; color: #e4eef6; font-size: 11px; }
+    .mobile-home, .mobile-tool-menu, .mobile-menu-backdrop { display: none; }
     .rail-project { margin: 14px 4px 0; padding: 14px 4px 0; border-top: 1px solid rgba(255,255,255,.16); }
     .rail-project .action { width: 100%; min-height: 44px; color: #eff8ff; border-color: rgba(124,190,241,.5); border-radius: 5px; background: linear-gradient(90deg, rgba(13,91,215,.42), rgba(13,91,215,.16)); font-size: 12px; }
     .rail-project .action:hover { background: rgba(13,91,215,.56); }
@@ -301,7 +302,7 @@
       .nav-list::-webkit-scrollbar { display: none; }
       .nav-item { flex: 0 0 auto; min-height: 55px; padding: 8px 13px; border-radius: 0; font-size: 12px; white-space: nowrap; }
       .nav-item::before { left: 50%; top: auto; bottom: 0; width: 24px; height: 3px; transform: translateX(-50%); }
-      .nav-num { width: auto; margin-right: 3px; }.nav-caption, .rail-footer { display: none; }.rail { flex-direction: row; align-items: stretch; }.rail .nav-list { flex: 1 1 0; min-width: 0; }.rail-project { flex: 0 0 auto; display: flex; align-items: center; margin: 0; padding: 6px 8px 6px 0; border: 0; }.rail-project .action { min-height: 40px; padding: 0 10px; white-space: nowrap; }.rail-project small { display: none; }
+      .nav-num { width: auto; margin-right: 3px; }.nav-caption, .rail-footer { display: none; }.rail { flex-direction: row; align-items: stretch; overflow: visible; }.rail .nav-list { display: none; }.mobile-home { width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center; align-self: center; margin: 6px 8px; color: #eaf6ff; border: 1px solid rgba(143,202,244,.45); border-radius: 5px; background: linear-gradient(135deg, rgba(61,157,238,.42), rgba(14,49,75,.8)); font-size: 23px; line-height: 1; cursor: pointer; }.mobile-home::after { content: ""; position: absolute; width: 4px; height: 4px; margin-top: 28px; border-radius: 50%; background: #65baff; }.rail-project { flex: 0 0 auto; display: flex; align-items: center; margin: 0 0 0 auto; padding: 6px 8px 6px 0; border: 0; }.rail-project .action { min-height: 40px; padding: 0 10px; white-space: nowrap; }.rail-project small { display: none; }.mobile-menu-backdrop { position: fixed; z-index: 7; inset: 56px 0 0; background: rgba(8,27,41,.26); }.mobile-menu-backdrop.open { display: block; }.mobile-tool-menu { position: absolute; z-index: 8; top: calc(100% + 6px); left: 8px; right: 8px; padding: 10px; color: #eaf6ff; border: 1px solid rgba(143,202,244,.43); border-top: 3px solid #41a6ff; border-radius: 6px; background: #10293d; box-shadow: 0 14px 30px rgba(6,23,35,.28); }.mobile-tool-menu.open { display: block; }.mobile-menu-title { display: flex; align-items: baseline; justify-content: space-between; margin: 2px 4px 9px; color: #9fb1c1; font-family: "IBM Plex Sans JP", sans-serif; font-size: 10px; letter-spacing: .11em; }.mobile-menu-title strong { color: #eaf6ff; font-size: 11px; letter-spacing: .04em; }.mobile-tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }.mobile-tool-item { min-height: 54px; padding: 8px 9px; color: #eaf6ff; border: 1px solid rgba(150,194,226,.25); border-left: 3px solid rgba(65,166,255,.55); border-radius: 3px; background: rgba(255,255,255,.055); text-align: left; cursor: pointer; }.mobile-tool-item:last-child { grid-column: 1 / -1; }.mobile-tool-item.active { border-color: #41a6ff; border-left-color: #41a6ff; background: rgba(65,166,255,.18); }.mobile-tool-item span { display: block; color: #66befe; font-family: "IBM Plex Sans JP", sans-serif; font-size: 10px; font-weight: 700; }.mobile-tool-item strong { display: block; margin-top: 1px; color: #fff; font-size: 12px; }
       .page { padding: 24px 14px 35px; }
       .topbar { display: block; padding-bottom: 20px; }.topbar-copy { margin-top: 8px; }.top-actions { justify-content: flex-start; margin-top: 15px; }.copy-scope { flex-basis: 100%; max-width: none; }
       .workbench { grid-template-columns: 1fr; gap: 14px; }.result-panel { order: -1; }
@@ -321,6 +322,7 @@
         <img class="brand-mark" src="/manus-storage/av-suite-logo_122a64be.png" alt="AV Calculator Suite" />
         <div><div class="brand-name">AV Calculator<br />Suite</div><div class="brand-sub">Field instruments</div></div>
       </div>
+      <button class="mobile-home" id="mobileMenuButton" type="button" aria-label="計算ツール一覧を開く" aria-expanded="false" aria-controls="mobileToolMenu">⌂</button>
       <p class="rail-title">CALCULATORS</p>
       <nav class="nav-list" aria-label="計算機を選択">
         <button class="nav-item active" type="button" data-target="screen" aria-pressed="true"><span class="nav-num">01</span><span class="nav-label">画面サイズ</span><span class="nav-caption">対角・幅・高さ・面積</span></button>
@@ -331,6 +333,17 @@
       </nav>
       <div class="rail-project"><button class="action" id="openCasePanelRail" type="button">案件を保存・一覧</button><small>01〜05の全計算結果を1案件として保存</small></div>
       <div class="rail-footer"><strong>営業・技術検証用</strong>数値は理論上の目安です。実機・現場条件で最終確認してください。</div>
+      <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" aria-hidden="true"></div>
+      <div class="mobile-tool-menu" id="mobileToolMenu" aria-label="計算ツール一覧">
+        <div class="mobile-menu-title"><span>SELECT TOOL</span><strong>計算ツール 01–05</strong></div>
+        <div class="mobile-tool-grid">
+          <button class="mobile-tool-item active" type="button" data-target="screen"><span>01</span><strong>画面サイズ</strong></button>
+          <button class="mobile-tool-item" type="button" data-target="lux"><span>02</span><strong>投影照度</strong></button>
+          <button class="mobile-tool-item" type="button" data-target="throw"><span>03</span><strong>スローレシオ</strong></button>
+          <button class="mobile-tool-item" type="button" data-target="blend"><span>04</span><strong>2面ブレンド</strong></button>
+          <button class="mobile-tool-item" type="button" data-target="video"><span>05</span><strong>映像容量</strong></button>
+        </div>
+      </div>
     </aside>
 
     <main>
@@ -698,7 +711,9 @@
       }
       function updateAll() { updateScreen(); updateLux(); updateThrow(); updateBlend(); updateVideo(); }
 
-      function activate(target) { state.active = target; document.querySelectorAll(".nav-item").forEach((button) => { const active = button.dataset.target === target; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); }); document.querySelectorAll(".calc-section").forEach((section) => section.classList.toggle("active", section.id === `calc-${target}`)); const [eyebrow, title, description, copyScope] = sectionMeta[target]; $("activeEyebrow").textContent = eyebrow; $("activeTitle").textContent = title; $("activeDescription").textContent = description; $("copyScope").innerHTML = `<span>コピー対象</span><strong>${copyScope}</strong>`; window.scrollTo({ top: 0, behavior: "smooth" }); }
+      function closeMobileToolMenu() { $("mobileToolMenu").classList.remove("open"); $("mobileMenuBackdrop").classList.remove("open"); $("mobileMenuBackdrop").setAttribute("aria-hidden", "true"); $("mobileMenuButton").setAttribute("aria-expanded", "false"); }
+      function toggleMobileToolMenu() { const isOpen = $("mobileToolMenu").classList.toggle("open"); $("mobileMenuBackdrop").classList.toggle("open", isOpen); $("mobileMenuBackdrop").setAttribute("aria-hidden", String(!isOpen)); $("mobileMenuButton").setAttribute("aria-expanded", String(isOpen)); }
+      function activate(target) { state.active = target; document.querySelectorAll(".nav-item").forEach((button) => { const active = button.dataset.target === target; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); }); document.querySelectorAll(".mobile-tool-item").forEach((button) => button.classList.toggle("active", button.dataset.target === target)); document.querySelectorAll(".calc-section").forEach((section) => section.classList.toggle("active", section.id === `calc-${target}`)); const [eyebrow, title, description, copyScope] = sectionMeta[target]; $("activeEyebrow").textContent = eyebrow; $("activeTitle").textContent = title; $("activeDescription").textContent = description; $("copyScope").innerHTML = `<span>コピー対象</span><strong>${copyScope}</strong>`; closeMobileToolMenu(); window.scrollTo({ top: 0, behavior: "smooth" }); }
       function copyCurrentSummary() {
         const s = state;
         const summary = s.active === "screen" ? `【画面サイズ】\nアスペクト比：${$("screenAspect").value}\n対角：${fixed(s.screen.diagIn, 1)} inch（${fixed(s.screen.diagMm, 0)} mm）\n横幅：${fixed(s.screen.width, 0)} mm\n高さ：${fixed(s.screen.height, 0)} mm\n面積：${fixed(s.screen.area, 2)} m²` : s.active === "lux" ? `【投影照度】\n環境光：${fixed(s.lux.env, 0)} lx\nスクリーン面積：${fixed(s.lux.area, 2)} m²\nプロジェクター：${fixed(s.lux.lumens, 0)} ANSI lm\nスクリーン照度：${fixed(s.lux.actualLux, 0)} lx\n5:1に必要：${fixed(s.lux.needed5, 0)} ANSI lm\n10:1に必要：${fixed(s.lux.needed10, 0)} ANSI lm` : s.active === "throw" ? `【スローレシオ】\n引き距離（本体基準）：${fixed(s.throw.distance, 2)} m\nスローレシオ：${fixed(s.throw.ratio, 2)}:1\n画面横幅：${fixed(s.throw.geo.width / 1000, 3)} m\n画面高さ：${fixed(s.throw.geo.height / 1000, 3)} m` : s.active === "blend" ? `【2面ブレンド】\n1台分：${fixed(s.blend.widthM, 2)} m × ${fixed(s.blend.heightM, 2)} m\nブレンド：${fixed(s.blend.blendPx, 0)} px（${fixed(s.blend.blendPct, 1)}%）\n全体投影幅：${fixed(s.blend.totalWidth, 2)} m\n全体キャンバス：${fixed(s.blend.totalPx, 0)} × ${fixed(s.blend.pxH, 0)} px` : `【映像容量】\n映像尺：${durationText()}\n非圧縮合計：${displayDecimalByte(s.video.totalBytes)}\n非圧縮映像レート：${fixed(s.video.videoRate * 8 / 1e9, 2)} Gbps\nMP4推定容量：${displayDecimalByte(s.video.mp4Total)}`;
@@ -706,6 +721,8 @@
       }
 
       document.querySelectorAll(".nav-item").forEach((button) => button.addEventListener("click", () => activate(button.dataset.target)));
+      document.querySelectorAll(".mobile-tool-item").forEach((button) => button.addEventListener("click", () => activate(button.dataset.target)));
+      $("mobileMenuButton").addEventListener("click", toggleMobileToolMenu); $("mobileMenuBackdrop").addEventListener("click", closeMobileToolMenu);
       ["screenAspect", "screenInputMode", "screenValue", "screenDecimal"].forEach((id) => $(id).addEventListener("input", updateScreen));
       ["luxArea", "projectorLumens", "screenGain", "luxEfficiency", "envLux"].forEach((id) => $(id).addEventListener("input", () => { if (id === "envLux") $("envPreset").value = "custom"; updateLux(); }));
       $("envPreset").addEventListener("change", () => { if ($("envPreset").value !== "custom") { $("envLux").value = $("envPreset").value; updateLux(); } });
