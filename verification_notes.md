@@ -85,3 +85,9 @@ GitHub Actionsの初回実行では、`pnpm` 実行ファイルがセットア�
 `https://rg9ycd.github.io/av-calculator-suite/av-calculator-suite.html` では単一HTMLアプリが正常に表示される一方、リポジトリのルートURLではReactの404画面が表示された。公開成果物とGitHub Pagesのデプロイ自体は正常であり、GitHub Pagesのリポジトリ配下パス `/av-calculator-suite/` をReactルーターがルートとして認識していないことが原因である。
 
 標準プレビュー用のルーターに `/av-calculator-suite/` を追加し、静的公開時のフォールバックも完成版への遷移先とした。GitHub Actions環境のベースパスで静的ビルドが正常に完了することを確認した。この修正は次回チェックポイントでmainへ反映される。
+
+## PWA・オフライン対応
+
+単一HTML版でサービスワーカーが登録され、マニフェスト名が「AV Calculator Suite」、表示モードが `standalone` であることを確認した。キャッシュ `av-calculator-suite-v1` には、公開ルート、`av-calculator-suite.html`、`index.html`、マニフェスト、アプリアイコンが保存された。計算ロジック・画面スタイル・案件保存・CSV出力は単一HTMLへ内包されているため、初回読み込み後はネットワーク接続なしでも利用できる。
+
+GitHub Pages向けビルド後、PWAマニフェスト、サービスワーカー、アイコンが公開対象へ出力されることを確認した。サービスワーカーは現在の画面を制御する状態となっており、ナビゲーション時にはキャッシュ済みの単一HTML版を返す構成である。

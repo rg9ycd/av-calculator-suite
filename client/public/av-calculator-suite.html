@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#f5f2e8" />
   <meta name="description" content="映像機器レンタルの営業・技術スタッフ向け統合計算ツール" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="AV Calc" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="pwa-icon.svg" type="image/svg+xml" />
   <title>AV Calculator Suite</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -748,6 +753,7 @@
       $("openCasePanelRail").addEventListener("click", openCasePanel); $("closeCasePanel").addEventListener("click", closeCasePanel); $("saveCase").addEventListener("click", saveCurrentCase); $("exportCases").addEventListener("click", exportCasesCsv); $("clearCases").addEventListener("click", () => { if (!loadCases().length) { showToast("削除する保存済み結果がありません。"); return; } if (window.confirm("保存済みの計算結果をすべて削除します。元に戻せません。")) { if (persistCases([])) { renderCaseList(); showToast("保存済みの計算結果をすべて削除しました。"); } } }); $("casePanel").addEventListener("click", (event) => { if (event.target === $("casePanel")) closeCasePanel(); }); window.addEventListener("keydown", (event) => { if (event.key === "Escape" && $("casePanel").classList.contains("open")) closeCasePanel(); });
       $("resetAll").addEventListener("click", () => { document.querySelectorAll("input").forEach((input) => { if (input.type === "checkbox") input.checked = input.defaultChecked; else input.value = input.defaultValue; }); document.querySelectorAll("select").forEach((select) => select.value = select.defaultValue); state.throwMode = "screen"; setThrowMode("screen"); updateAll(); showToast("すべての入力を初期値に戻しました。"); });
       document.querySelectorAll("select").forEach((select) => select.addEventListener("change", () => select.dispatchEvent(new Event("input"))));
+      if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js", { scope: "./" }).catch(() => {}));
       updateAll(); renderCaseList();
     })();
   </script>
