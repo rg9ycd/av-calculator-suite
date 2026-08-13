@@ -110,6 +110,8 @@
     h1 { margin: 5px 0 0; font-family: "IBM Plex Sans JP", sans-serif; font-size: clamp(26px, 3.1vw, 39px); line-height: 1.18; letter-spacing: -.035em; }
     .topbar-copy { max-width: 480px; margin: 6px 0 0; color: var(--muted); font-size: 13px; }
     .top-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+    .copy-scope { flex: 1 1 250px; max-width: 390px; align-self: stretch; display: flex; flex-direction: column; justify-content: center; padding: 6px 10px; color: #4e6270; border-left: 3px solid #86b8ed; background: rgba(255,255,255,.52); font-size: 10px; line-height: 1.35; }
+    .copy-scope strong { color: var(--blue-deep); font-size: 11px; }
     .action, .link-button {
       min-height: 42px;
       padding: 0 14px;
@@ -256,7 +258,7 @@
       .nav-item::before { left: 50%; top: auto; bottom: 0; width: 24px; height: 3px; transform: translateX(-50%); }
       .nav-num { width: auto; margin-right: 3px; }.nav-caption, .rail-footer { display: none; }
       .page { padding: 24px 14px 35px; }
-      .topbar { display: block; padding-bottom: 20px; }.topbar-copy { margin-top: 8px; }.top-actions { justify-content: flex-start; margin-top: 15px; }
+      .topbar { display: block; padding-bottom: 20px; }.topbar-copy { margin-top: 8px; }.top-actions { justify-content: flex-start; margin-top: 15px; }.copy-scope { flex-basis: 100%; max-width: none; }
       .workbench { grid-template-columns: 1fr; gap: 14px; }.result-panel { order: -1; }
       .panel-header, .panel-body { padding-left: 16px; padding-right: 16px; }
       .result-number { font-size: 43px; }.field-grid { gap: 11px; }.info-card { grid-template-columns: 1fr 85px; }.reference-grid { grid-template-columns: 1fr; }
@@ -293,7 +295,7 @@
             <h1 id="activeTitle">画面サイズを、商談中にすぐ確認</h1>
             <p class="topbar-copy" id="activeDescription">対角インチ、横幅、または高さから、投影サイズと面積を即時に換算します。</p>
           </div>
-          <div class="top-actions"><button class="action" id="copyCurrent" type="button">現在の結果をコピー</button><button class="action primary" id="resetAll" type="button">入力を初期化</button></div>
+          <div class="top-actions"><div class="copy-scope" id="copyScope" aria-live="polite"><span>コピー対象</span><strong>対角／横幅／高さ／面積／アスペクト比</strong></div><button class="action" id="copyCurrent" type="button" aria-describedby="copyScope">現在の結果をコピー</button><button class="action primary" id="resetAll" type="button">入力を初期化</button></div>
         </header>
 
         <section class="calc-section active" id="calc-screen" aria-labelledby="screen-heading">
@@ -444,7 +446,7 @@
                   <div class="field"><label for="rawFps">フレームレート</label><div class="input-unit"><input id="rawFps" type="number" inputmode="decimal" min="0" step="0.01" value="59.94" /><span>fps</span></div></div>
                 </div>
                 <div class="rule"></div>
-                <div class="field-grid"><div class="field"><label for="rawWidth">非圧縮：横解像度</label><div class="input-unit"><input id="rawWidth" type="number" inputmode="numeric" min="1" step="1" value="3840" /><span>px</span></div></div><div class="field"><label for="rawHeight">非圧縮：縦解像度</label><div class="input-unit"><input id="rawHeight" type="number" inputmode="numeric" min="1" step="1" value="2160" /><span>px</span></div></div><div class="field"><label for="rawColor">色形式</label><select id="rawColor"><option value="YUV">YUV</option><option value="RGB">RGB</option></select></div><div class="field"><label for="rawChroma">クロマサブサンプリング</label><select id="rawChroma"><option value="420">4:2:0</option><option value="422">4:2:2</option><option value="444">4:4:4</option></select></div><div class="field"><label for="rawBitDepth">色深度</label><select id="rawBitDepth"><option value="8">8 bit</option><option value="10" selected>10 bit</option><option value="12">12 bit</option></select></div></div>
+                <div class="field-grid"><div class="field"><label for="rawWidth">非圧縮：横解像度</label><div class="input-unit"><input id="rawWidth" type="number" inputmode="numeric" min="1" step="1" value="3840" /><span>px</span></div></div><div class="field"><label for="rawHeight">非圧縮：縦解像度</label><div class="input-unit"><input id="rawHeight" type="number" inputmode="numeric" min="1" step="1" value="2160" /><span>px</span></div></div><div class="field"><label for="rawColor">色形式</label><select id="rawColor"><option value="YUV">YUV</option><option value="RGB">RGB</option></select></div><div class="field" id="rawChromaField"><label for="rawChroma">クロマサブサンプリング</label><select id="rawChroma"><option value="420">4:2:0</option><option value="422">4:2:2</option><option value="444">4:4:4</option></select></div><div class="field hidden" id="rawRgbNote"><span class="field-label">クロマサンプリング</span><div class="inline-note" style="margin-top:0;"><b>RGB</b><span>RGBは各ピクセルにR・G・Bの3成分を記録するため、クロマサンプリングは選択しません。</span></div></div><div class="field"><label for="rawBitDepth">色深度</label><select id="rawBitDepth"><option value="8">8 bit</option><option value="10" selected>10 bit</option><option value="12">12 bit</option></select></div></div>
                 <div class="switch-row"><div class="switch-label">アルファチャンネル <small>非圧縮映像の1チャンネル分を加算</small></div><input id="rawAlpha" class="check-control" type="checkbox" /></div>
                 <div class="switch-row"><div class="switch-label">非圧縮音声（PCM） <small>映像容量に音声容量を加算</small></div><input id="rawAudio" class="check-control" type="checkbox" checked /></div>
                 <div class="field-grid audio-settings" id="rawAudioSettings"><div class="field"><label for="rawSampleRate">サンプリングレート</label><select id="rawSampleRate"><option value="44.1">44.1 kHz</option><option value="48" selected>48 kHz</option><option value="96">96 kHz</option></select></div><div class="field"><label for="rawAudioDepth">量子化ビット数</label><select id="rawAudioDepth"><option value="16">16 bit</option><option value="24" selected>24 bit</option><option value="32">32 bit</option></select></div><div class="field"><label for="rawChannels">チャンネル数</label><select id="rawChannels"><option value="2" selected>2 ch / Stereo</option><option value="6">6 ch / 5.1</option><option value="8">8 ch / 7.1</option></select></div></div>
@@ -474,11 +476,11 @@
       const $ = (id) => document.getElementById(id);
       const aspects = { "16:9": [16, 9], "16:10": [16, 10], "4:3": [4, 3] };
       const sectionMeta = {
-        screen: ["01 / Screen Geometry", "画面サイズを、商談中にすぐ確認", "対角インチ、横幅、または高さから、投影サイズと面積を即時に換算します。"],
-        lux: ["02 / Screen Illuminance", "環境光に対して、必要な明るさを提案", "スクリーン面積とANSIルーメンから照度を求め、5:1・10:1の必要光束を併記します。"],
-        throw: ["03 / Throw Ratio", "引き距離と画面幅から、レンズ条件を整理", "プロジェクター本体からスクリーンまでの距離を基準に、スローレシオまたは投影可能サイズを算出します。"],
-        blend: ["04 / Horizontal Blend", "2面の重複幅から、全体の投影面とキャンバスを確認", "ブレンド率またはピクセル数を指定し、物理サイズと最終解像度を連動表示します。"],
-        video: ["05 / Video Data", "映像仕様から、必要なストレージ容量を見積もる", "非圧縮のデータレートと、MP4の平均ビットレートベースの概算を同時に確認します。"]
+        screen: ["01 / Screen Geometry", "画面サイズを、商談中にすぐ確認", "対角インチ、横幅、または高さから、投影サイズと面積を即時に換算します。", "対角／横幅／高さ／面積／アスペクト比"],
+        lux: ["02 / Screen Illuminance", "環境光に対して、必要な明るさを提案", "スクリーン面積とANSIルーメンから照度を求め、5:1・10:1の必要光束を併記します。", "環境光／面積／ANSI lm／スクリーン照度／5:1・10:1の必要光束"],
+        throw: ["03 / Throw Ratio", "引き距離と画面幅から、レンズ条件を整理", "プロジェクター本体からスクリーンまでの距離を基準に、スローレシオまたは投影可能サイズを算出します。", "本体基準の引き距離／レシオ／横幅／高さ／対角／面積"],
+        blend: ["04 / Horizontal Blend", "2面の重複幅から、全体の投影面とキャンバスを確認", "ブレンド率またはピクセル数を指定し、物理サイズと最終解像度を連動表示します。", "1台分サイズ／ブレンド幅（px・%）／全体投影幅／全体キャンバス"],
+        video: ["05 / Video Data", "映像仕様から、必要なストレージ容量を見積もる", "非圧縮のデータレートと、MP4の平均ビットレートベースの概算を同時に確認します。", "映像尺／非圧縮容量・データレート／MP4推定容量"]
       };
       const state = { screen: {}, lux: {}, throw: {}, blend: {}, video: {}, active: "screen", throwMode: "screen" };
       const num = (id, fallback = 0) => { const value = parseFloat($(id).value); return Number.isFinite(value) ? value : fallback; };
@@ -594,7 +596,8 @@
       function updateVideo() {
         const seconds = durationSeconds(); const width = Math.max(1, Math.round(num("rawWidth", 1))), height = Math.max(1, Math.round(num("rawHeight", 1))), fps = Math.max(0, num("rawFps"));
         const color = $("rawColor").value, chroma = $("rawChroma").value, bitDepth = num("rawBitDepth", 10), alpha = $("rawAlpha").checked;
-        $("rawChroma").disabled = color === "RGB";
+        $("rawChromaField").classList.toggle("hidden", color === "RGB");
+        $("rawRgbNote").classList.toggle("hidden", color !== "RGB");
         const samples = color === "RGB" ? 3 : ({ "420": 1.5, "422": 2, "444": 3 }[chroma]);
         const bytesPerPixel = (samples + (alpha ? 1 : 0)) * bitDepth / 8; const frameBytes = width * height * bytesPerPixel; const videoRate = frameBytes * fps;
         const hasAudio = $("rawAudio").checked; const audioRate = hasAudio ? num("rawSampleRate") * 1000 * num("rawAudioDepth") / 8 * num("rawChannels") : 0; const totalBytes = (videoRate + audioRate) * seconds; const videoBytes = videoRate * seconds; const audioBytes = audioRate * seconds;
@@ -608,7 +611,7 @@
       }
       function updateAll() { updateScreen(); updateLux(); updateThrow(); updateBlend(); updateVideo(); }
 
-      function activate(target) { state.active = target; document.querySelectorAll(".nav-item").forEach((button) => { const active = button.dataset.target === target; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); }); document.querySelectorAll(".calc-section").forEach((section) => section.classList.toggle("active", section.id === `calc-${target}`)); const [eyebrow, title, description] = sectionMeta[target]; $("activeEyebrow").textContent = eyebrow; $("activeTitle").textContent = title; $("activeDescription").textContent = description; window.scrollTo({ top: 0, behavior: "smooth" }); }
+      function activate(target) { state.active = target; document.querySelectorAll(".nav-item").forEach((button) => { const active = button.dataset.target === target; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); }); document.querySelectorAll(".calc-section").forEach((section) => section.classList.toggle("active", section.id === `calc-${target}`)); const [eyebrow, title, description, copyScope] = sectionMeta[target]; $("activeEyebrow").textContent = eyebrow; $("activeTitle").textContent = title; $("activeDescription").textContent = description; $("copyScope").innerHTML = `<span>コピー対象</span><strong>${copyScope}</strong>`; window.scrollTo({ top: 0, behavior: "smooth" }); }
       function copyCurrentSummary() {
         const s = state;
         const summary = s.active === "screen" ? `【画面サイズ】\nアスペクト比：${$("screenAspect").value}\n対角：${fixed(s.screen.diagIn, 1)} inch（${fixed(s.screen.diagMm, 0)} mm）\n横幅：${fixed(s.screen.width, 0)} mm\n高さ：${fixed(s.screen.height, 0)} mm\n面積：${fixed(s.screen.area, 2)} m²` : s.active === "lux" ? `【投影照度】\n環境光：${fixed(s.lux.env, 0)} lx\nスクリーン面積：${fixed(s.lux.area, 2)} m²\nプロジェクター：${fixed(s.lux.lumens, 0)} ANSI lm\nスクリーン照度：${fixed(s.lux.actualLux, 0)} lx\n5:1に必要：${fixed(s.lux.needed5, 0)} ANSI lm\n10:1に必要：${fixed(s.lux.needed10, 0)} ANSI lm` : s.active === "throw" ? `【スローレシオ】\n引き距離（本体基準）：${fixed(s.throw.distance, 2)} m\nスローレシオ：${fixed(s.throw.ratio, 2)}:1\n画面横幅：${fixed(s.throw.geo.width / 1000, 3)} m\n画面高さ：${fixed(s.throw.geo.height / 1000, 3)} m` : s.active === "blend" ? `【2面ブレンド】\n1台分：${fixed(s.blend.widthM, 2)} m × ${fixed(s.blend.heightM, 2)} m\nブレンド：${fixed(s.blend.blendPx, 0)} px（${fixed(s.blend.blendPct, 1)}%）\n全体投影幅：${fixed(s.blend.totalWidth, 2)} m\n全体キャンバス：${fixed(s.blend.totalPx, 0)} × ${fixed(s.blend.pxH, 0)} px` : `【映像容量】\n映像尺：${durationText()}\n非圧縮合計：${displayDecimalByte(s.video.totalBytes)}\n非圧縮映像レート：${fixed(s.video.videoRate * 8 / 1e9, 2)} Gbps\nMP4推定容量：${displayDecimalByte(s.video.mp4Total)}`;
