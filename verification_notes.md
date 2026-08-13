@@ -77,3 +77,5 @@
 投影照度ツールの画面注記から、アークベル株式会社「プロジェクター照度計算機」を参照する文言とリンクが削除されていることを確認した。GitHub Actions環境ではViteのベースパスを `/av-calculator-suite/` とし、GitHub Pagesのリポジトリ配下URLでアセットを読み込める構成とした。外部ストレージ依存のロゴ・背景・抽象図はCSSによる図形・グリッドへ置き換え、GitHub Pages上で自己完結する静的サイトにしている。
 
 GitHub Actionsの初回実行では、`pnpm` 実行ファイルがセットアップ前に必要となりビルドが停止した。公開ワークフローを修正し、Node.jsセットアップとpnpmキャッシュの前に `pnpm/action-setup@v4` でpnpm 10を明示的にセットアップする順序へ変更した。
+
+次の実行では、`pnpm/action-setup@v4` 側の固定バージョン指定と `package.json` の `packageManager` 指定が競合したため、ワークフロー側の固定指定を削除した。pnpmのバージョンはリポジトリの `packageManager` 設定から一意に決まる構成となった。

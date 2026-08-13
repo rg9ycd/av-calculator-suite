@@ -1,5 +1,7 @@
 # 実装タスク
 
+- [x] pnpm/action-setup側の固定バージョン指定を削除し、package.jsonのpackageManager指定へ統一する。
+- [x] pnpmバージョン競合を解消したワークフローをGitHubへ反映し、再デプロイを案内する。
 - [x] GitHub Actionsでpnpmを明示的にセットアップし、Pagesビルドの実行失敗を修正する。
 - [x] 修正後のワークフローをGitHubへ反映し、Pagesデプロイの再実行手順を案内する。
 - [x] 照度計算機の画面からアークベル社を参照する文言とリンクを削除する。
