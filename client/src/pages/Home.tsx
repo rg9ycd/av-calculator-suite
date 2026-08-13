@@ -1,25 +1,16 @@
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { Streamdown } from 'streamdown';
+import { useEffect } from "react";
 
 /**
- * All content in this page are only for example, replace with your own feature implementation
- * When building pages, remember your instructions in Frontend Best Practices, Design Guide and Common Pitfalls
+ * フィールド・インストゥルメント：標準プレビューから単一HTMLの完成版へ即時に案内する。
  */
 export default function Home() {
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
+  useEffect(() => {
+    window.location.replace("/av-calculator-suite.html");
+  }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        {/* Example: lucide-react for icons */}
-        <Loader2 className="animate-spin" />
-        Example Page
-        {/* Example: Streamdown for markdown rendering */}
-        <Streamdown>Any **markdown** content</Streamdown>
-        <Button variant="default">Example Button</Button>
-      </main>
-    </div>
+    <main className="min-h-screen bg-[#f5f2e8] text-[#12202e] grid place-items-center p-6">
+      <p className="text-sm">AV Calculator Suite を開いています。</p>
+    </main>
   );
 }
