@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f5f2e8" />
+  <meta name="description" content="映像機器レンタルの営業・技術スタッフ向け統合計算ツール" />
+  <title>AV Calculator Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* フィールド・インストゥルメント：オフホワイトの作業台に、計測値を最優先で示す。 */
+    :root {
+      --ink: #12202e;
+      --muted: #64727d;
+      --paper: #f5f2e8;
+      --panel: #fffdf7;
+      --line: #d9ddd8;
+      --blue: #0d5bd7;
+      --blue-deep: #073b8e;
+      --blue-soft: #e8f0ff;
+      --amber: #a85e12;
+      --amber-soft: #fff2de;
+      --green: #08785e;
+      --green-soft: #e1f5ed;
+      --red: #b34444;
+      --radius: 16px;
+      --shadow: 0 10px 28px rgba(19, 38, 53, .08), 0 2px 4px rgba(19, 38, 53, .04);
+      --ease-out: cubic-bezier(.23, 1, .32, 1);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-width: 320px;
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Noto Sans JP", sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      opacity: .46;
+      background: url("/manus-storage/av-suite-grid-texture_6c0d5641.png") center / cover no-repeat;
+      pointer-events: none;
+    }
+    button, input, select { font: inherit; }
+    button { border: 0; }
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+      outline: 3px solid rgba(13, 91, 215, .35);
+      outline-offset: 2px;
+    }
+    .app-shell { display: flex; min-height: 100vh; }
+    .rail {
+      width: 276px;
+      flex: 0 0 276px;
+      padding: 28px 18px 22px;
+      color: #ecf5ff;
+      background: #10293d;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset -1px 0 rgba(255, 255, 255, .1);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 27px; }
+    .brand-mark {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+      background: #f7f2e8;
+      border-radius: 12px;
+      padding: 4px;
+    }
+    .brand-name { font-family: "IBM Plex Sans JP", sans-serif; font-weight: 700; font-size: 17px; line-height: 1.15; letter-spacing: .02em; }
+    .brand-sub { color: #9fb1c1; font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-top: 3px; }
+    .rail-title { margin: 0 8px 10px; color: #9fb1c1; font-size: 10px; letter-spacing: .12em; font-weight: 700; }
+    .nav-list { display: grid; gap: 5px; }
+    .nav-item {
+      position: relative;
+      width: 100%;
+      min-height: 55px;
+      padding: 9px 12px 9px 15px;
+      color: #dce9f2;
+      background: transparent;
+      border-radius: 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: background 180ms var(--ease-out), color 180ms var(--ease-out), transform 160ms var(--ease-out);
+    }
+    .nav-item::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 2px; background: transparent; }
+    .nav-item:hover { background: rgba(255,255,255,.07); }
+    .nav-item:active, .action:active, .link-button:active { transform: scale(.97); }
+    .nav-item.active { color: #fff; background: rgba(255,255,255,.12); }
+    .nav-item.active::before { background: #41a6ff; }
+    .nav-num { display: inline-block; width: 22px; color: #70bbf8; font-family: "IBM Plex Sans JP", sans-serif; font-weight: 700; font-size: 12px; }
+    .nav-label { font-weight: 600; font-size: 13px; }
+    .nav-caption { display: block; margin: 1px 0 0 22px; color: #9fb1c1; font-size: 10px; }
+    .rail-footer { margin-top: auto; padding: 24px 8px 0; color: #a7bac9; font-size: 11px; line-height: 1.65; }
+    .rail-footer strong { display: block; color: #e4eef6; font-size: 11px; }
+    main { width: 100%; min-width: 0; }
+    .page { width: min(1300px, 100%); margin: 0 auto; padding: 40px 42px 54px; }
+    .topbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 4px 0 28px; }
+    .eyebrow { display: flex; align-items: center; gap: 8px; color: var(--blue); font-size: 11px; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 25px; height: 3px; background: var(--blue); }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin: 5px 0 0; font-family: "IBM Plex Sans JP", sans-serif; font-size: clamp(26px, 3.1vw, 39px); line-height: 1.18; letter-spacing: -.035em; }
+    .topbar-copy { max-width: 480px; margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+    .top-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+    .action, .link-button {
+      min-height: 42px;
+      padding: 0 14px;
+      border: 1px solid #c7d2dc;
+      color: var(--blue-deep);
+      background: rgba(255,255,255,.68);
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 160ms var(--ease-out), background 160ms var(--ease-out), border-color 160ms var(--ease-out);
+    }
+    .action:hover, .link-button:hover { border-color: var(--blue); background: #fff; }
+    .action.primary { color: #fff; border-color: var(--blue); background: var(--blue); }
+    .action.primary:hover { background: var(--blue-deep); }
+    .calc-section { display: none; animation: section-in 220ms var(--ease-out); }
+    .calc-section.active { display: block; }
+    @keyframes section-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .workbench {
+      display: grid;
+      grid-template-columns: minmax(300px, .94fr) minmax(360px, 1.26fr);
+      gap: 20px;
+      align-items: start;
+    }
+    .panel {
+      overflow: hidden;
+      background: rgba(255,253,247,.9);
+      border: 1px solid rgba(184, 194, 194, .76);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .panel-header { padding: 18px 21px 15px; border-bottom: 1px solid var(--line); }
+    .panel-kicker { color: var(--blue); font-family: "IBM Plex Sans JP", sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .1em; }
+    .panel-title { margin: 2px 0 0; font-family: "IBM Plex Sans JP", sans-serif; font-size: 20px; letter-spacing: -.02em; }
+    .panel-intro { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .panel-body { padding: 21px; }
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .field-grid.one { grid-template-columns: 1fr; }
+    .field { min-width: 0; }
+    label, .field-label { display: block; margin: 0 0 6px; color: #40515f; font-size: 12px; font-weight: 700; }
+    .field-hint { display: block; margin-top: 5px; color: #73808a; font-size: 10px; line-height: 1.5; }
+    input[type="number"], select {
+      width: 100%;
+      min-height: 45px;
+      padding: 0 11px;
+      border: 1px solid #bac6cd;
+      border-radius: 8px;
+      color: var(--ink);
+      background: rgba(255,255,255,.92);
+      font-family: "IBM Plex Sans JP", sans-serif;
+      font-size: 15px;
+      font-variant-numeric: tabular-nums;
+      transition: border-color 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+    }
+    input[type="number"]:focus, select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(13,91,215,.13); outline: 0; }
+    .input-unit { position: relative; }
+    .input-unit input { padding-right: 47px; }
+    .input-unit span { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); color: #71808b; font-family: "IBM Plex Sans JP", sans-serif; font-size: 11px; font-weight: 700; pointer-events: none; }
+    .rule { height: 1px; margin: 20px 0; background: var(--line); }
+    .inline-note { display: flex; gap: 9px; align-items: flex-start; margin-top: 16px; padding: 11px 12px; color: #53636e; background: #f1f4f2; border-radius: 8px; font-size: 11px; line-height: 1.65; }
+    .inline-note b { color: var(--blue-deep); white-space: nowrap; }
+    .inline-note a { color: var(--blue-deep); font-weight: 700; }
+    .result-panel { position: relative; background: #10293d; border-color: #10293d; color: #ecf5ff; }
+    .result-panel::after { content: ""; position: absolute; z-index: 0; width: 200px; height: 200px; top: -83px; right: -75px; border: 1px solid rgba(95,187,255,.35); border-radius: 50%; box-shadow: 0 0 0 26px rgba(95,187,255,.05), 0 0 0 53px rgba(95,187,255,.04); pointer-events: none; }
+    .result-panel .panel-header { border-color: rgba(255,255,255,.15); }
+    .result-panel .panel-kicker { color: #69beff; }
+    .result-panel .panel-title { color: #fff; }
+    .result-panel .panel-intro { color: #b8cad7; }
+    .result-panel .panel-body { position: relative; z-index: 1; }
+    .result-main { position: relative; padding: 2px 0 20px 17px; border-left: 5px solid #49a9fd; }
+    .result-label { color: #aec3d2; font-size: 12px; font-weight: 700; }
+    .result-number { margin: 3px 0 2px; color: #fff; font-family: "IBM Plex Sans JP", sans-serif; font-size: clamp(34px, 5vw, 58px); font-weight: 700; letter-spacing: -.055em; line-height: 1; font-variant-numeric: tabular-nums; }
+    .result-number span { margin-left: 7px; color: #91cfff; font-size: .34em; letter-spacing: 0; }
+    .result-sub { color: #b8cad7; font-size: 11px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+    .metric { padding: 12px 12px 11px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.13); border-radius: 10px; }
+    .metric-label { display: block; color: #b2c7d7; font-size: 10px; line-height: 1.35; }
+    .metric-value { display: block; margin-top: 4px; color: #fff; font-family: "IBM Plex Sans JP", sans-serif; font-size: 18px; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+    .metric-value small { color: #98b6c9; font-size: 10px; font-weight: 500; }
+    .result-footer { margin-top: 15px; color: #b8cad7; font-size: 10px; line-height: 1.6; }
+    .result-footer strong { color: #f1f8ff; }
+    .result-actions { display: flex; gap: 8px; margin-top: 18px; }
+    .result-actions .action { color: #eaf6ff; border-color: rgba(161,207,242,.55); background: rgba(255,255,255,.06); }
+    .result-actions .action:hover { background: rgba(255,255,255,.14); }
+    .results-table-wrap { margin-top: 20px; overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+    .results-table { width: 100%; min-width: 530px; border-collapse: collapse; background: rgba(255,255,255,.56); font-size: 12px; }
+    .results-table caption { padding: 12px 13px; color: #40515f; background: #f1f4f2; text-align: left; font-weight: 700; }
+    .results-table th, .results-table td { padding: 10px 12px; border-bottom: 1px solid #e0e4df; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .results-table tr:last-child td { border-bottom: 0; }
+    .results-table th { color: #657480; font-size: 10px; font-weight: 700; }
+    .results-table th:first-child, .results-table td:first-child { text-align: left; }
+    .selected-row { color: var(--blue-deep); background: #edf4ff; font-weight: 700; }
+    .status-strip { display: flex; align-items: stretch; gap: 1px; overflow: hidden; margin-bottom: 20px; border: 1px solid #c4d1db; border-radius: 10px; background: #c4d1db; }
+    .status-step { flex: 1; padding: 10px; background: #f7fafb; color: #587080; font-size: 10px; font-weight: 700; text-align: center; }
+    .status-step.active { color: #fff; background: var(--blue); }
+    .status-step.warn { color: #805219; background: #fff1d9; }
+    .status-step.good { color: #08604b; background: #dff4ec; }
+    .mode-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 0 0 16px; padding: 4px; border: 1px solid #c9d4da; border-radius: 10px; background: #edf2f4; }
+    .mode-toggle button { min-height: 36px; padding: 0 8px; color: #6a7982; border-radius: 7px; background: transparent; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .mode-toggle button.active { color: var(--blue-deep); background: #fff; box-shadow: 0 1px 3px rgba(16,41,61,.13); }
+    .blend-diagram { position: relative; height: 116px; margin: 1px 0 18px; overflow: hidden; border-radius: 10px; background: #eaf1f2; }
+    .blend-panel-a, .blend-panel-b { position: absolute; top: 22px; bottom: 22px; width: 55%; border: 2px solid #1567c4; background: rgba(61,157,238,.26); }
+    .blend-panel-a { left: 7%; }
+    .blend-panel-b { right: 7%; }
+    .blend-overlap { position: absolute; top: 17px; bottom: 17px; left: 45%; width: 10%; border-left: 1px dashed #a85e12; border-right: 1px dashed #a85e12; background: rgba(255,185,87,.56); }
+    .blend-diagram span { position: absolute; z-index: 2; bottom: 5px; color: #4e616d; font-size: 10px; font-weight: 700; }
+    .blend-diagram .label-a { left: 11%; }.blend-diagram .label-o { left: 42%; color: #8a4f10; }.blend-diagram .label-b { right: 11%; }
+    .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; }
+    .switch-label { color: #40515f; font-size: 12px; font-weight: 700; }
+    .switch-label small { display: block; color: #73808a; font-size: 10px; font-weight: 400; }
+    .check-control { appearance: none; width: 42px; height: 24px; margin: 0; border: 1px solid #b6c4cb; border-radius: 999px; background: #d8e0e3; cursor: pointer; transition: background 160ms var(--ease-out); }
+    .check-control::before { content: ""; display: block; width: 18px; height: 18px; margin: 2px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(20,33,43,.25); transition: transform 160ms var(--ease-out); }
+    .check-control:checked { border-color: var(--blue); background: var(--blue); }
+    .check-control:checked::before { transform: translateX(18px); }
+    .audio-settings.off { opacity: .45; pointer-events: none; }
+    .formula { margin: 0; padding: 11px 13px; color: #586974; border-left: 3px solid #8db8ed; background: #edf5ff; font-family: "IBM Plex Sans JP", sans-serif; font-size: 11px; font-variant-numeric: tabular-nums; }
+    .info-card { display: grid; grid-template-columns: 1fr 128px; gap: 16px; align-items: center; margin-top: 20px; padding: 17px 18px; border: 1px solid #cdd9df; border-radius: var(--radius); background: rgba(255,253,247,.8); }
+    .info-card h3 { margin: 0 0 4px; font-family: "IBM Plex Sans JP", sans-serif; font-size: 15px; }
+    .info-card p { margin: 0; color: var(--muted); font-size: 11px; }
+    .info-card img { width: 100%; max-height: 95px; object-fit: contain; object-position: right center; mix-blend-mode: multiply; }
+    .reference-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
+    .reference { padding: 13px; border-left: 3px solid #8db8ed; background: rgba(255,255,255,.57); font-size: 11px; }
+    .reference strong { display: block; margin-bottom: 3px; color: var(--blue-deep); }
+    .reference a { color: var(--blue-deep); font-weight: 700; }
+    .toast { position: fixed; z-index: 10; left: 50%; bottom: 24px; transform: translate(-50%, 15px); padding: 10px 15px; color: #fff; background: #10293d; border-radius: 7px; box-shadow: var(--shadow); font-size: 12px; opacity: 0; pointer-events: none; transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out); }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .source-note { margin-top: 22px; color: #6d7b84; font-size: 10px; line-height: 1.7; }
+    .source-note a { color: var(--blue-deep); font-weight: 700; }
+    .hidden { display: none !important; }
+    @media (max-width: 930px) {
+      .rail { width: 214px; flex-basis: 214px; padding: 22px 12px 18px; }
+      .brand { padding-left: 5px; }.nav-caption { display: none; }.nav-item { min-height: 46px; }
+      .page { padding: 32px 26px 46px; }.workbench { grid-template-columns: minmax(270px, .92fr) minmax(330px, 1.08fr); }
+    }
+    @media (max-width: 740px) {
+      body { background: #f5f2e8; }
+      .app-shell { display: block; }
+      .rail { position: sticky; top: 0; z-index: 5; width: 100%; padding: 0; background: #10293d; box-shadow: 0 2px 12px rgba(10,27,41,.22); }
+      .brand { display: none; }
+      .rail-title { display: none; }
+      .nav-list { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
+      .nav-list::-webkit-scrollbar { display: none; }
+      .nav-item { flex: 0 0 auto; min-height: 55px; padding: 8px 13px; border-radius: 0; font-size: 12px; white-space: nowrap; }
+      .nav-item::before { left: 50%; top: auto; bottom: 0; width: 24px; height: 3px; transform: translateX(-50%); }
+      .nav-num { width: auto; margin-right: 3px; }.nav-caption, .rail-footer { display: none; }
+      .page { padding: 24px 14px 35px; }
+      .topbar { display: block; padding-bottom: 20px; }.topbar-copy { margin-top: 8px; }.top-actions { justify-content: flex-start; margin-top: 15px; }
+      .workbench { grid-template-columns: 1fr; gap: 14px; }.result-panel { order: -1; }
+      .panel-header, .panel-body { padding-left: 16px; padding-right: 16px; }
+      .result-number { font-size: 43px; }.field-grid { gap: 11px; }.info-card { grid-template-columns: 1fr 85px; }.reference-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 420px) {
+      .field-grid { grid-template-columns: 1fr; }.metric-grid { grid-template-columns: 1fr 1fr; }.top-actions .action { flex: 1; padding: 0 8px; }.result-actions { flex-direction: column; }.result-actions .action { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="rail" aria-label="計算機メニュー">
+      <div class="brand">
+        <img class="brand-mark" src="/manus-storage/av-suite-logo_122a64be.png" alt="AV Calculator Suite" />
+        <div><div class="brand-name">AV Calculator<br />Suite</div><div class="brand-sub">Field instruments</div></div>
+      </div>
+      <p class="rail-title">CALCULATORS</p>
+      <nav class="nav-list" aria-label="計算機を選択">
+        <button class="nav-item active" type="button" data-target="screen" aria-pressed="true"><span class="nav-num">01</span><span class="nav-label">画面サイズ</span><span class="nav-caption">対角・幅・高さ・面積</span></button>
+        <button class="nav-item" type="button" data-target="lux" aria-pressed="false"><span class="nav-num">02</span><span class="nav-label">投影照度</span><span class="nav-caption">環境光と必要ルーメン</span></button>
+        <button class="nav-item" type="button" data-target="throw" aria-pressed="false"><span class="nav-num">03</span><span class="nav-label">スローレシオ</span><span class="nav-caption">引き距離と画面幅</span></button>
+        <button class="nav-item" type="button" data-target="blend" aria-pressed="false"><span class="nav-num">04</span><span class="nav-label">2面ブレンド</span><span class="nav-caption">重複幅と全体キャンバス</span></button>
+        <button class="nav-item" type="button" data-target="video" aria-pressed="false"><span class="nav-num">05</span><span class="nav-label">映像容量</span><span class="nav-caption">非圧縮・MP4</span></button>
+      </nav>
+      <div class="rail-footer"><strong>営業・技術検証用</strong>数値は理論上の目安です。実機・現場条件で最終確認してください。</div>
+    </aside>
+
+    <main>
+      <div class="page">
+        <header class="topbar">
+          <div>
+            <div class="eyebrow" id="activeEyebrow">01 / Screen Geometry</div>
+            <h1 id="activeTitle">画面サイズを、商談中にすぐ確認</h1>
+            <p class="topbar-copy" id="activeDescription">対角インチ、横幅、または高さから、投影サイズと面積を即時に換算します。</p>
+          </div>
+          <div class="top-actions"><button class="action" id="copyCurrent" type="button">現在の結果をコピー</button><button class="action primary" id="resetAll" type="button">入力を初期化</button></div>
+        </header>
+
+        <section class="calc-section active" id="calc-screen" aria-labelledby="screen-heading">
+          <div class="workbench">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-kicker">INPUT</div><h2 class="panel-title" id="screen-heading">画面条件</h2><p class="panel-intro">起点となる寸法とアスペクト比を選択します。</p></div>
+              <div class="panel-body">
+                <div class="field-grid">
+                  <div class="field"><label for="screenAspect">アスペクト比</label><select id="screenAspect"><option value="16:9">16:9</option><option value="16:10">16:10</option><option value="4:3">4:3</option></select></div>
+                  <div class="field"><label for="screenInputMode">入力する寸法</label><select id="screenInputMode"><option value="diagonal">対角線</option><option value="width">横幅</option><option value="height">高さ</option></select></div>
+                  <div class="field"><label id="screenValueLabel" for="screenValue">対角線</label><div class="input-unit"><input id="screenValue" type="number" inputmode="decimal" min="0" step="0.1" value="200" /><span id="screenValueUnit">inch</span></div><small class="field-hint" id="screenValueHint">プロジェクター／スクリーンの公称サイズ</small></div>
+                  <div class="field"><label for="screenDecimal">表示の小数桁</label><select id="screenDecimal"><option value="0">mm：整数 / m²：小数第2位</option><option value="1">mm：小数第1位 / m²：小数第2位</option><option value="2">mm：小数第2位 / m²：小数第2位</option></select></div>
+                </div>
+                <div class="inline-note"><b>連携</b><span>算出した面積を「投影照度」へ、横幅を「スローレシオ」へ送れます。</span></div>
+              </div>
+            </div>
+            <div class="panel result-panel">
+              <div class="panel-header"><div class="panel-kicker">CALCULATED SIZE</div><h2 class="panel-title">選択中の投影サイズ</h2><p class="panel-intro">数値は入力と同時に更新されます。</p></div>
+              <div class="panel-body">
+                <div class="result-main"><div class="result-label">対角サイズ</div><div class="result-number" id="screenDiagOut">200.0<span>inch</span></div><div class="result-sub" id="screenDiagMmOut">5,080 mm</div></div>
+                <div class="metric-grid">
+                  <div class="metric"><span class="metric-label">横幅</span><span class="metric-value" id="screenWidthOut">4,428 <small>mm</small></span></div>
+                  <div class="metric"><span class="metric-label">高さ</span><span class="metric-value" id="screenHeightOut">2,491 <small>mm</small></span></div>
+                  <div class="metric"><span class="metric-label">投影面積</span><span class="metric-value" id="screenAreaOut">11.03 <small>m²</small></span></div>
+                  <div class="metric"><span class="metric-label">アスペクト比</span><span class="metric-value" id="screenAspectOut">16:9</span></div>
+                </div>
+                <div class="result-actions"><button class="action" type="button" id="sendAreaToLux">面積を照度計算へ</button><button class="action" type="button" id="sendScreenToThrow">横幅をスローレシオへ</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="results-table-wrap"><table class="results-table"><caption>同じ対角サイズにおける比率別の投影寸法</caption><thead><tr><th>アスペクト比</th><th>横幅</th><th>高さ</th><th>面積</th></tr></thead><tbody id="screenComparison"></tbody></table></div>
+          <div class="info-card"><div><h3>営業説明で使いやすい、3つの起点</h3><p>スクリーンの対角インチからだけでなく、会場図面の横幅または高さ（mm）から必要な対角インチを逆算できます。</p></div><img src="/manus-storage/av-suite-optics-illustration_0fab4d4d.png" alt="プロジェクターとスクリーンを表す抽象図" /></div>
+        </section>
+
+        <section class="calc-section" id="calc-lux" aria-labelledby="lux-heading">
+          <div class="workbench">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-kicker">INPUT + TARGET</div><h2 class="panel-title" id="lux-heading">環境光と投影条件</h2><p class="panel-intro">実機のANSIルーメンとスクリーン面積から照度を確認します。</p></div>
+              <div class="panel-body">
+                <div class="field-grid">
+                  <div class="field"><label for="envPreset">環境光の目安</label><select id="envPreset"><option value="0">暗転 / 0 lx</option><option value="10">映画館（上映前）/ 10 lx</option><option value="20">寝室 / 20 lx</option><option value="100">廊下・病室 / 100 lx</option><option value="200" selected>ロビー・宴会場 / 200 lx</option><option value="300">受付・食堂・売店 / 300 lx</option><option value="400">オフィス / 400 lx</option><option value="500">ホール・図書館 / 500 lx</option><option value="750">書斎・研究室 / 750 lx</option><option value="1000">手術室 / 1,000 lx</option><option value="custom">任意入力</option></select></div>
+                  <div class="field"><label for="envLux">環境照度</label><div class="input-unit"><input id="envLux" type="number" inputmode="decimal" min="0" step="1" value="200" /><span>lx</span></div></div>
+                  <div class="field"><label for="luxArea">スクリーン面積</label><div class="input-unit"><input id="luxArea" type="number" inputmode="decimal" min="0.01" step="0.01" value="11.03" /><span>m²</span></div><small class="field-hint">画面サイズ計算から連携できます。</small></div>
+                  <div class="field"><label for="projectorLumens">プロジェクター輝度</label><div class="input-unit"><input id="projectorLumens" type="number" inputmode="decimal" min="0" step="100" value="10000" /><span>ANSI lm</span></div></div>
+                  <div class="field"><label for="screenGain">スクリーンゲイン <a href="https://kic-corp.co.jp/screen/screen_about.html" target="_blank" rel="noopener" title="スクリーンゲインの説明を開く">↗</a></label><input id="screenGain" type="number" inputmode="decimal" min="0" step="0.1" value="1.0" /><small class="field-hint">面照度とは別に、反射特性の参考値として表示します。</small></div>
+                  <div class="field"><label for="luxEfficiency">実効係数</label><input id="luxEfficiency" type="number" inputmode="decimal" min="0.1" max="1" step="0.05" value="0.8" /><small class="field-hint">レンズ・経年などを見込み、必要ANSI lmを補正します。</small></div>
+                </div>
+                <div class="rule"></div>
+                <p class="formula">スクリーン照度 = ANSIルーメン ÷ 面積　｜　必要ANSI lm = 目標照度 × 面積 ÷ 実効係数</p>
+                <div class="inline-note"><b>基準</b><span>目標照度は「環境光 × 5（イベント・プレゼン）」および「環境光 × 10（高画質・展示）」で算出します。環境光が20 lx以下では、最低100 lxに補正します。</span></div>
+              </div>
+            </div>
+            <div class="panel result-panel">
+              <div class="panel-header"><div class="panel-kicker">ACTUAL SCREEN ILLUMINANCE</div><h2 class="panel-title">実機条件でのスクリーン照度</h2><p class="panel-intro">面積に対する光束密度です。</p></div>
+              <div class="panel-body">
+                <div class="status-strip"><div class="status-step" id="luxStatus5">5:1 未判定</div><div class="status-step" id="luxStatus10">10:1 未判定</div></div>
+                <div class="result-main"><div class="result-label">スクリーン照度（理論値）</div><div class="result-number" id="screenLuxOut">907<span>lx</span></div><div class="result-sub" id="gainLuxOut">ゲイン 1.0 の相対明るさ指標：907 lx相当</div></div>
+                <div class="metric-grid">
+                  <div class="metric"><span class="metric-label">環境光に対する比率</span><span class="metric-value" id="actualContrastOut">4.5 <small>:1</small></span></div>
+                  <div class="metric"><span class="metric-label">5:1の目標照度</span><span class="metric-value" id="target5Out">1,000 <small>lx</small></span></div>
+                  <div class="metric"><span class="metric-label">5:1に必要な明るさ</span><span class="metric-value" id="needed5Out">13,788 <small>ANSI lm</small></span></div>
+                  <div class="metric"><span class="metric-label">10:1に必要な明るさ</span><span class="metric-value" id="needed10Out">27,575 <small>ANSI lm</small></span></div>
+                </div>
+                <div class="result-footer" id="luxRecommendation">環境光を抑えるか、より高輝度のプロジェクターを検討してください。</div>
+                <div class="result-actions"><button class="action" id="copyLux" type="button">照度の結果をコピー</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="reference-grid"><div class="reference"><strong>5:1 コントラスト</strong>イベント、プレゼンテーション、カンファレンスに適した目安です。</div><div class="reference"><strong>10:1 コントラスト</strong>高画質な展示・シアター用途を想定した、より高い目標です。</div><div class="reference"><strong>ゲインについて</strong>ゲイン1.0は標準面を基準にした反射特性です。<a href="https://www.barco.com/en/news/entertainment-glossary/what-is-screen-gain" target="_blank" rel="noopener">解説を参照 ↗</a></div></div>
+          <p class="source-note">注記：この計算は理論上の目安です。投影面の色、投写角度、周辺光の回り込み、レンズ・光学系、機器状態により実測値は変動します。参照した考え方：<a href="https://www.arkbell.co.jp/randd/projector-calculator/" target="_blank" rel="noopener">アークベル株式会社「プロジェクター照度計算機」</a>。</p>
+        </section>
+
+        <section class="calc-section" id="calc-throw" aria-labelledby="throw-heading">
+          <div class="workbench">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-kicker">DISTANCE + IMAGE WIDTH</div><h2 class="panel-title" id="throw-heading">スローレシオを求める</h2><p class="panel-intro">「必要レシオ」と「投影可能サイズ」を切り替えて確認します。</p></div>
+              <div class="panel-body">
+                <div class="mode-toggle" aria-label="計算モード"><button id="throwModeScreen" class="active" type="button">画面サイズから求める</button><button id="throwModeRatio" type="button">レシオから求める</button></div>
+                <div class="field-grid">
+                  <div class="field"><label for="throwAspect">アスペクト比</label><select id="throwAspect"><option value="16:9">16:9</option><option value="16:10">16:10</option><option value="4:3">4:3</option></select></div>
+                  <div class="field"><label for="throwDistance">引き距離（本体〜スクリーン）</label><div class="input-unit"><input id="throwDistance" type="number" inputmode="decimal" min="0" step="0.01" value="8" /><span>m</span></div><small class="field-hint">レンズ面ではなくプロジェクター本体基準です。</small></div>
+                  <div class="field" id="throwScreenField"><label id="throwScreenLabel" for="throwScreenSize">必要な画面横幅</label><div class="input-unit"><input id="throwScreenSize" type="number" inputmode="decimal" min="0" step="1" value="4428" /><span id="throwScreenUnit">mm</span></div><small class="field-hint" id="throwScreenHint">対角インチ入力へ切替可能です。</small></div>
+                  <div class="field" id="throwSizeModeField"><label for="throwSizeMode">画面サイズの入力方法</label><select id="throwSizeMode"><option value="width">横幅（mm）</option><option value="diagonal">対角（inch）</option></select></div>
+                  <div class="field hidden" id="throwRatioField"><label for="throwRatio">スローレシオ</label><input id="throwRatio" type="number" inputmode="decimal" min="0.01" step="0.01" value="1.80" /><small class="field-hint">投写距離 ÷ 画面横幅</small></div>
+                </div>
+                <div class="rule"></div><p class="formula">スローレシオ = 引き距離（m）÷ 画面横幅（m）</p>
+                <div class="inline-note"><b>注記</b><span>投写距離は本体前面からではなく、<strong>プロジェクター本体基準</strong>として統一しています。機種ごとのレンズ位置・オフセットは仕様書で確認してください。</span></div>
+              </div>
+            </div>
+            <div class="panel result-panel">
+              <div class="panel-header"><div class="panel-kicker" id="throwResultKicker">REQUIRED THROW RATIO</div><h2 class="panel-title" id="throwResultTitle">必要なスローレシオ</h2><p class="panel-intro">選定するレンズのレシオ範囲と照合してください。</p></div>
+              <div class="panel-body">
+                <div class="result-main"><div class="result-label" id="throwMainLabel">必要なスローレシオ</div><div class="result-number" id="throwMainOut">1.81<span>:1</span></div><div class="result-sub" id="throwSubOut">8.00 m ÷ 4.428 m</div></div>
+                <div class="metric-grid">
+                  <div class="metric"><span class="metric-label">画面横幅</span><span class="metric-value" id="throwWidthOut">4.428 <small>m</small></span></div>
+                  <div class="metric"><span class="metric-label">画面高さ</span><span class="metric-value" id="throwHeightOut">2.491 <small>m</small></span></div>
+                  <div class="metric"><span class="metric-label">対角サイズ</span><span class="metric-value" id="throwDiagOut">200.0 <small>inch</small></span></div>
+                  <div class="metric"><span class="metric-label">投影面積</span><span class="metric-value" id="throwAreaOut">11.03 <small>m²</small></span></div>
+                </div>
+                <div class="result-actions"><button class="action" id="sendThrowToLux" type="button">面積を照度計算へ</button></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="calc-section" id="calc-blend" aria-labelledby="blend-heading">
+          <div class="workbench">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-kicker">TWO PROJECTOR HORIZONTAL BLEND</div><h2 class="panel-title" id="blend-heading">左右2面のブレンド条件</h2><p class="panel-intro">1台分の画面サイズ・解像度と、重複幅を指定します。</p></div>
+              <div class="panel-body">
+                <div class="blend-diagram" aria-hidden="true"><div class="blend-panel-a"></div><div class="blend-panel-b"></div><div class="blend-overlap"></div><span class="label-a">LEFT</span><span class="label-o">BLEND</span><span class="label-b">RIGHT</span></div>
+                <div class="field-grid">
+                  <div class="field"><label for="blendAspect">アスペクト比</label><select id="blendAspect"><option value="16:9">16:9</option><option value="16:10">16:10</option><option value="4:3">4:3</option></select></div>
+                  <div class="field"><label for="blendHeight">1台分の画面高さ</label><div class="input-unit"><input id="blendHeight" type="number" inputmode="decimal" min="0" step="0.01" value="2.50" /><span>m</span></div></div>
+                  <div class="field"><label for="blendPixelWidth">1台分の横解像度</label><div class="input-unit"><input id="blendPixelWidth" type="number" inputmode="numeric" min="1" step="1" value="1920" /><span>px</span></div></div>
+                  <div class="field"><label for="blendPixelHeight">1台分の縦解像度</label><div class="input-unit"><input id="blendPixelHeight" type="number" inputmode="numeric" min="1" step="1" value="1080" /><span>px</span></div></div>
+                  <div class="field"><label for="blendUnit">ブレンド幅の指定</label><select id="blendUnit"><option value="percent">割合（%）</option><option value="pixel">ピクセル（px）</option></select></div>
+                  <div class="field"><label id="blendValueLabel" for="blendValue">ブレンド幅</label><div class="input-unit"><input id="blendValue" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="10" /><span id="blendValueUnit">%</span></div><small class="field-hint">0〜100% または 0〜横解像度px</small></div>
+                </div>
+                <div class="inline-note"><b>運用</b><span>一般的な目安は5〜20%です。映像・レンズ・投写面の条件に応じ、0〜100%まで任意に指定できます。</span></div>
+              </div>
+            </div>
+            <div class="panel result-panel">
+              <div class="panel-header"><div class="panel-kicker">COMBINED CANVAS</div><h2 class="panel-title">全体の投影サイズ</h2><p class="panel-intro">左右2台の投影幅から、重複部分を差し引きます。</p></div>
+              <div class="panel-body">
+                <div class="result-main"><div class="result-label">全体の投影幅</div><div class="result-number" id="blendTotalWidthOut">8.44<span>m</span></div><div class="result-sub" id="blendFormulaOut">4.44 m × 2 − 0.44 m</div></div>
+                <div class="metric-grid">
+                  <div class="metric"><span class="metric-label">全体キャンバス</span><span class="metric-value" id="blendCanvasOut">3,648 <small>× 1,080 px</small></span></div>
+                  <div class="metric"><span class="metric-label">ブレンド幅</span><span class="metric-value" id="blendPxOut">192 <small>px</small></span></div>
+                  <div class="metric"><span class="metric-label">ブレンド率</span><span class="metric-value" id="blendPctOut">10.0 <small>%</small></span></div>
+                  <div class="metric"><span class="metric-label">全体面積</span><span class="metric-value" id="blendAreaOut">21.11 <small>m²</small></span></div>
+                </div>
+                <div class="result-actions"><button class="action" id="sendBlendToVideo" type="button">解像度を映像容量へ</button></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="calc-section" id="calc-video" aria-labelledby="video-heading">
+          <div class="workbench">
+            <div class="panel">
+              <div class="panel-header"><div class="panel-kicker">RAW + COMPRESSED ESTIMATE</div><h2 class="panel-title" id="video-heading">映像条件・映像尺</h2><p class="panel-intro">非圧縮とMP4の容量を、同じ映像尺で比較します。</p></div>
+              <div class="panel-body">
+                <div class="field-grid">
+                  <div class="field"><label for="durationH">映像尺：時</label><div class="input-unit"><input id="durationH" type="number" inputmode="numeric" min="0" step="1" value="1" /><span>h</span></div></div>
+                  <div class="field"><label for="durationM">映像尺：分</label><div class="input-unit"><input id="durationM" type="number" inputmode="numeric" min="0" max="59" step="1" value="0" /><span>min</span></div></div>
+                  <div class="field"><label for="durationS">映像尺：秒</label><div class="input-unit"><input id="durationS" type="number" inputmode="numeric" min="0" max="59" step="1" value="0" /><span>sec</span></div></div>
+                  <div class="field"><label for="rawFps">フレームレート</label><div class="input-unit"><input id="rawFps" type="number" inputmode="decimal" min="0" step="0.01" value="59.94" /><span>fps</span></div></div>
+                </div>
+                <div class="rule"></div>
+                <div class="field-grid"><div class="field"><label for="rawWidth">非圧縮：横解像度</label><div class="input-unit"><input id="rawWidth" type="number" inputmode="numeric" min="1" step="1" value="3840" /><span>px</span></div></div><div class="field"><label for="rawHeight">非圧縮：縦解像度</label><div class="input-unit"><input id="rawHeight" type="number" inputmode="numeric" min="1" step="1" value="2160" /><span>px</span></div></div><div class="field"><label for="rawColor">色形式</label><select id="rawColor"><option value="YUV">YUV</option><option value="RGB">RGB</option></select></div><div class="field"><label for="rawChroma">クロマサブサンプリング</label><select id="rawChroma"><option value="420">4:2:0</option><option value="422">4:2:2</option><option value="444">4:4:4</option></select></div><div class="field"><label for="rawBitDepth">色深度</label><select id="rawBitDepth"><option value="8">8 bit</option><option value="10" selected>10 bit</option><option value="12">12 bit</option></select></div></div>
+                <div class="switch-row"><div class="switch-label">アルファチャンネル <small>非圧縮映像の1チャンネル分を加算</small></div><input id="rawAlpha" class="check-control" type="checkbox" /></div>
+                <div class="switch-row"><div class="switch-label">非圧縮音声（PCM） <small>映像容量に音声容量を加算</small></div><input id="rawAudio" class="check-control" type="checkbox" checked /></div>
+                <div class="field-grid audio-settings" id="rawAudioSettings"><div class="field"><label for="rawSampleRate">サンプリングレート</label><select id="rawSampleRate"><option value="44.1">44.1 kHz</option><option value="48" selected>48 kHz</option><option value="96">96 kHz</option></select></div><div class="field"><label for="rawAudioDepth">量子化ビット数</label><select id="rawAudioDepth"><option value="16">16 bit</option><option value="24" selected>24 bit</option><option value="32">32 bit</option></select></div><div class="field"><label for="rawChannels">チャンネル数</label><select id="rawChannels"><option value="2" selected>2 ch / Stereo</option><option value="6">6 ch / 5.1</option><option value="8">8 ch / 7.1</option></select></div></div>
+              </div>
+            </div>
+            <div class="panel result-panel">
+              <div class="panel-header"><div class="panel-kicker">UNCOMPRESSED DATA</div><h2 class="panel-title">非圧縮映像の容量</h2><p class="panel-intro">パディングやファイルコンテナを除く理論値です。</p></div>
+              <div class="panel-body">
+                <div class="result-main"><div class="result-label">合計データ容量</div><div class="result-number" id="rawTotalOut">4.33<span>TB</span></div><div class="result-sub" id="rawDetailOut">映像 4.29 TB + 音声 1.08 GB</div></div>
+                <div class="metric-grid"><div class="metric"><span class="metric-label">映像データレート</span><span class="metric-value" id="rawRateOut">9.54 <small>Gbps</small></span></div><div class="metric"><span class="metric-label">1フレーム容量</span><span class="metric-value" id="rawFrameOut">19.8 <small>MB</small></span></div><div class="metric"><span class="metric-label">音声データレート</span><span class="metric-value" id="rawAudioRateOut">2.30 <small>Mbps</small></span></div><div class="metric"><span class="metric-label">映像尺</span><span class="metric-value" id="durationOut">01:00:00</span></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="workbench" style="margin-top:20px;">
+            <div class="panel"><div class="panel-header"><div class="panel-kicker">MP4 ESTIMATE</div><h2 class="panel-title">圧縮映像（MP4）の条件</h2><p class="panel-intro">コーデック・VBRの実際の容量は、指定平均ビットレートにより変動します。</p></div><div class="panel-body"><div class="field-grid"><div class="field"><label for="mp4Width">MP4：横解像度</label><div class="input-unit"><input id="mp4Width" type="number" inputmode="numeric" min="1" step="1" value="3840" /><span>px</span></div></div><div class="field"><label for="mp4Height">MP4：縦解像度</label><div class="input-unit"><input id="mp4Height" type="number" inputmode="numeric" min="1" step="1" value="2160" /><span>px</span></div></div><div class="field"><label for="mp4VideoRate">映像平均ビットレート</label><div class="input-unit"><input id="mp4VideoRate" type="number" inputmode="decimal" min="0" step="0.1" value="40" /><span>Mbps</span></div></div><div class="field"><label for="mp4AudioRate">音声ビットレート</label><div class="input-unit"><input id="mp4AudioRate" type="number" inputmode="decimal" min="0" step="1" value="320" /><span>kbps</span></div></div><div class="field"><label for="mp4Overhead">コンテナ余裕</label><div class="input-unit"><input id="mp4Overhead" type="number" inputmode="decimal" min="0" step="0.1" value="2" /><span>%</span></div></div></div><div class="inline-note"><b>連携</b><span>2面ブレンドの「全体キャンバス」を、この解像度と非圧縮解像度の両方に反映できます。</span></div></div></div>
+            <div class="panel result-panel"><div class="panel-header"><div class="panel-kicker">ESTIMATED MP4 SIZE</div><h2 class="panel-title">MP4の推定容量</h2><p class="panel-intro">映像・音声ビットレートと映像尺から算出します。</p></div><div class="panel-body"><div class="result-main"><div class="result-label">コンテナ余裕を含む推定容量</div><div class="result-number" id="mp4TotalOut">18.5<span>GB</span></div><div class="result-sub" id="mp4DetailOut">映像 40 Mbps + 音声 320 kbps / 01:00:00</div></div><div class="metric-grid"><div class="metric"><span class="metric-label">合計ビットレート</span><span class="metric-value" id="mp4RateOut">40.32 <small>Mbps</small></span></div><div class="metric"><span class="metric-label">映像のみ</span><span class="metric-value" id="mp4VideoSizeOut">18.00 <small>GB</small></span></div><div class="metric"><span class="metric-label">音声のみ</span><span class="metric-value" id="mp4AudioSizeOut">0.14 <small>GB</small></span></div><div class="metric"><span class="metric-label">解像度</span><span class="metric-value" id="mp4ResOut">3,840 <small>× 2,160</small></span></div></div><div class="result-actions"><button class="action" id="copyVideo" type="button">容量の結果をコピー</button></div></div></div>
+          </div>
+          <p class="source-note">注記：非圧縮映像はYUVのサブサンプリング比から算出するパディングなしの概算です。実際の収録・再生ファイルは、コーデック、ビット深度の格納形式、音声形式、コンテナ、VBR、メタデータにより変動します。</p>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      const $ = (id) => document.getElementById(id);
+      const aspects = { "16:9": [16, 9], "16:10": [16, 10], "4:3": [4, 3] };
+      const sectionMeta = {
+        screen: ["01 / Screen Geometry", "画面サイズを、商談中にすぐ確認", "対角インチ、横幅、または高さから、投影サイズと面積を即時に換算します。"],
+        lux: ["02 / Screen Illuminance", "環境光に対して、必要な明るさを提案", "スクリーン面積とANSIルーメンから照度を求め、5:1・10:1の必要光束を併記します。"],
+        throw: ["03 / Throw Ratio", "引き距離と画面幅から、レンズ条件を整理", "プロジェクター本体からスクリーンまでの距離を基準に、スローレシオまたは投影可能サイズを算出します。"],
+        blend: ["04 / Horizontal Blend", "2面の重複幅から、全体の投影面とキャンバスを確認", "ブレンド率またはピクセル数を指定し、物理サイズと最終解像度を連動表示します。"],
+        video: ["05 / Video Data", "映像仕様から、必要なストレージ容量を見積もる", "非圧縮のデータレートと、MP4の平均ビットレートベースの概算を同時に確認します。"]
+      };
+      const state = { screen: {}, lux: {}, throw: {}, blend: {}, video: {}, active: "screen", throwMode: "screen" };
+      const num = (id, fallback = 0) => { const value = parseFloat($(id).value); return Number.isFinite(value) ? value : fallback; };
+      const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+      const fixed = (value, digits = 0) => new Intl.NumberFormat("ja-JP", { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
+      const isFinitePositive = (value) => Number.isFinite(value) && value > 0;
+      const durationSeconds = () => Math.max(0, num("durationH") * 3600 + num("durationM") * 60 + num("durationS"));
+      const durationText = () => `${String(Math.floor(num("durationH"))).padStart(2, "0")}:${String(Math.floor(num("durationM"))).padStart(2, "0")}:${String(Math.floor(num("durationS"))).padStart(2, "0")}`;
+      const displayDecimalByte = (bytes, decimals = 2) => {
+        if (!Number.isFinite(bytes) || bytes < 0) return "—";
+        const units = [[1e12, "TB"], [1e9, "GB"], [1e6, "MB"], [1e3, "kB"]];
+        const found = units.find(([limit]) => bytes >= limit) || [1, "B"];
+        return `${fixed(bytes / found[0], decimals)} ${found[1]}`;
+      };
+      const showToast = (message) => { const toast = $("toast"); toast.textContent = message; toast.classList.add("show"); window.clearTimeout(showToast.timer); showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2200); };
+      const copyText = async (text) => { try { await navigator.clipboard.writeText(text); showToast("計算結果をクリップボードにコピーしました。"); } catch { const area = document.createElement("textarea"); area.value = text; document.body.appendChild(area); area.select(); document.execCommand("copy"); area.remove(); showToast("計算結果をクリップボードにコピーしました。"); } };
+
+      function geometryFromDiagonal(diagMm, aspect) { const [wRatio, hRatio] = aspects[aspect]; const divisor = Math.hypot(wRatio, hRatio); const width = diagMm * wRatio / divisor; const height = diagMm * hRatio / divisor; return { width, height, diagMm, diagIn: diagMm / 25.4, area: width * height / 1e6 }; }
+      function geometryFromWidth(width, aspect) { const [wRatio, hRatio] = aspects[aspect]; const height = width * hRatio / wRatio; const diagMm = Math.hypot(width, height); return { width, height, diagMm, diagIn: diagMm / 25.4, area: width * height / 1e6 }; }
+      function geometryFromHeight(height, aspect) { const [wRatio, hRatio] = aspects[aspect]; const width = height * wRatio / hRatio; const diagMm = Math.hypot(width, height); return { width, height, diagMm, diagIn: diagMm / 25.4, area: width * height / 1e6 }; }
+
+      function updateScreen() {
+        const aspect = $("screenAspect").value;
+        const mode = $("screenInputMode").value;
+        const value = Math.max(0, num("screenValue"));
+        const digits = parseInt($("screenDecimal").value, 10);
+        const labels = { diagonal: ["対角線", "inch", "プロジェクター／スクリーンの公称サイズ"], width: ["横幅", "mm", "会場図面・実測から逆算"], height: ["高さ", "mm", "天井高やレイアウトから逆算"] };
+        $("screenValueLabel").textContent = labels[mode][0]; $("screenValueUnit").textContent = labels[mode][1]; $("screenValueHint").textContent = labels[mode][2];
+        const geo = mode === "diagonal" ? geometryFromDiagonal(value * 25.4, aspect) : mode === "width" ? geometryFromWidth(value, aspect) : geometryFromHeight(value, aspect);
+        state.screen = geo;
+        $("screenDiagOut").innerHTML = `${fixed(geo.diagIn, 1)}<span>inch</span>`;
+        $("screenDiagMmOut").textContent = `${fixed(geo.diagMm, digits)} mm`;
+        $("screenWidthOut").innerHTML = `${fixed(geo.width, digits)} <small>mm</small>`;
+        $("screenHeightOut").innerHTML = `${fixed(geo.height, digits)} <small>mm</small>`;
+        $("screenAreaOut").innerHTML = `${fixed(geo.area, 2)} <small>m²</small>`;
+        $("screenAspectOut").textContent = aspect;
+        $("screenComparison").innerHTML = Object.keys(aspects).map((key) => { const item = geometryFromDiagonal(geo.diagMm, key); return `<tr class="${key === aspect ? "selected-row" : ""}"><td>${key}</td><td>${fixed(item.width, digits)} mm</td><td>${fixed(item.height, digits)} mm</td><td>${fixed(item.area, 2)} m²</td></tr>`; }).join("");
+      }
+
+      function updateLux() {
+        const env = Math.max(0, num("envLux"));
+        const area = Math.max(.0001, num("luxArea"));
+        const lumens = Math.max(0, num("projectorLumens"));
+        const gain = Math.max(0, num("screenGain", 1));
+        const efficiency = clamp(num("luxEfficiency", .8), .1, 1);
+        const actualLux = lumens / area;
+        const target5 = Math.max(env * 5, 100);
+        const target10 = Math.max(env * 10, 100);
+        const needed5 = target5 * area / efficiency;
+        const needed10 = target10 * area / efficiency;
+        const contrast = env > 0 ? actualLux / env : Infinity;
+        state.lux = { env, area, lumens, actualLux, target5, target10, needed5, needed10, contrast };
+        $("screenLuxOut").innerHTML = `${fixed(actualLux, 0)}<span>lx</span>`;
+        $("gainLuxOut").textContent = `ゲイン ${fixed(gain, 1)} の相対明るさ指標：${fixed(actualLux * gain, 0)} lx相当`;
+        $("actualContrastOut").innerHTML = `${env ? fixed(contrast, 1) : "—"} <small>${env ? ":1" : "環境光 0 lx"}</small>`;
+        $("target5Out").innerHTML = `${fixed(target5, 0)} <small>lx</small>`;
+        $("needed5Out").innerHTML = `${fixed(needed5, 0)} <small>ANSI lm</small>`;
+        $("needed10Out").innerHTML = `${fixed(needed10, 0)} <small>ANSI lm</small>`;
+        const status5 = $("luxStatus5"), status10 = $("luxStatus10");
+        status5.className = `status-step ${actualLux >= target5 ? "good" : "warn"}`; status5.textContent = actualLux >= target5 ? "5:1 目標を満たす" : "5:1 目標に不足";
+        status10.className = `status-step ${actualLux >= target10 ? "good" : "warn"}`; status10.textContent = actualLux >= target10 ? "10:1 目標を満たす" : "10:1 目標に不足";
+        const difference = needed5 - lumens;
+        $("luxRecommendation").innerHTML = actualLux >= target10 ? `<strong>高画質（10:1）の目標を満たしています。</strong> 余裕を含む理論値です。実機と現場光で確認してください。` : actualLux >= target5 ? `<strong>イベント・プレゼン（5:1）の目標を満たしています。</strong> 高画質用途は ${fixed(Math.max(0, needed10 - lumens), 0)} ANSI lm 以上の上積みを検討してください。` : `<strong>イベント・プレゼン（5:1）の目標まで ${fixed(Math.max(0, difference), 0)} ANSI lm 不足しています。</strong> 環境光を抑えるか、${fixed(needed5, 0)} ANSI lm 以上の機種を検討してください。`;
+      }
+
+      function setThrowMode(mode) {
+        state.throwMode = mode;
+        $("throwModeScreen").classList.toggle("active", mode === "screen"); $("throwModeRatio").classList.toggle("active", mode === "ratio");
+        $("throwScreenField").classList.toggle("hidden", mode !== "screen"); $("throwSizeModeField").classList.toggle("hidden", mode !== "screen"); $("throwRatioField").classList.toggle("hidden", mode !== "ratio");
+        $("throwResultKicker").textContent = mode === "screen" ? "REQUIRED THROW RATIO" : "POSSIBLE SCREEN SIZE";
+        $("throwResultTitle").textContent = mode === "screen" ? "必要なスローレシオ" : "投影可能な画面サイズ";
+        $("throwMainLabel").textContent = mode === "screen" ? "必要なスローレシオ" : "画面横幅";
+        updateThrow();
+      }
+      function updateThrow() {
+        const aspect = $("throwAspect").value;
+        const distance = Math.max(0, num("throwDistance"));
+        let geo, ratio;
+        if (state.throwMode === "screen") {
+          const inputMode = $("throwSizeMode").value;
+          const input = Math.max(0, num("throwScreenSize"));
+          $("throwScreenLabel").textContent = inputMode === "width" ? "必要な画面横幅" : "必要な対角サイズ";
+          $("throwScreenUnit").textContent = inputMode === "width" ? "mm" : "inch";
+          $("throwScreenHint").textContent = inputMode === "width" ? "会場図面から入力できます。" : "アスペクト比から横幅を換算します。";
+          geo = inputMode === "width" ? geometryFromWidth(input, aspect) : geometryFromDiagonal(input * 25.4, aspect);
+          ratio = geo.width > 0 ? distance / (geo.width / 1000) : 0;
+          $("throwMainOut").innerHTML = `${fixed(ratio, 2)}<span>:1</span>`;
+          $("throwSubOut").textContent = `${fixed(distance, 2)} m ÷ ${fixed(geo.width / 1000, 3)} m`;
+        } else {
+          ratio = Math.max(.01, num("throwRatio", 1));
+          const widthM = distance / ratio;
+          geo = geometryFromWidth(widthM * 1000, aspect);
+          $("throwMainOut").innerHTML = `${fixed(widthM, 3)}<span>m</span>`;
+          $("throwSubOut").textContent = `スローレシオ ${fixed(ratio, 2)}:1 / 引き距離 ${fixed(distance, 2)} m`;
+        }
+        state.throw = { geo, ratio, distance };
+        $("throwWidthOut").innerHTML = `${fixed(geo.width / 1000, 3)} <small>m</small>`; $("throwHeightOut").innerHTML = `${fixed(geo.height / 1000, 3)} <small>m</small>`; $("throwDiagOut").innerHTML = `${fixed(geo.diagIn, 1)} <small>inch</small>`; $("throwAreaOut").innerHTML = `${fixed(geo.area, 2)} <small>m²</small>`;
+      }
+
+      function updateBlend() {
+        const aspect = $("blendAspect").value, [wRatio, hRatio] = aspects[aspect];
+        const heightM = Math.max(0, num("blendHeight")); const widthM = heightM * wRatio / hRatio;
+        const pxW = Math.max(1, Math.round(num("blendPixelWidth", 1))), pxH = Math.max(1, Math.round(num("blendPixelHeight", 1)));
+        const unit = $("blendUnit").value, input = Math.max(0, num("blendValue"));
+        const blendPx = clamp(unit === "percent" ? pxW * input / 100 : input, 0, pxW);
+        const blendPct = blendPx / pxW * 100, blendM = widthM * blendPct / 100, totalWidth = Math.max(0, widthM * 2 - blendM), totalPx = Math.max(0, Math.round(pxW * 2 - blendPx)), totalArea = totalWidth * heightM;
+        $("blendValueLabel").textContent = unit === "percent" ? "ブレンド幅" : "ブレンド幅"; $("blendValueUnit").textContent = unit === "percent" ? "%" : "px"; $("blendValue").max = unit === "percent" ? "100" : String(pxW);
+        state.blend = { widthM, heightM, pxW, pxH, blendPx, blendPct, totalWidth, totalPx, totalArea };
+        $("blendTotalWidthOut").innerHTML = `${fixed(totalWidth, 2)}<span>m</span>`; $("blendFormulaOut").textContent = `${fixed(widthM, 2)} m × 2 − ${fixed(blendM, 2)} m`;
+        $("blendCanvasOut").innerHTML = `${fixed(totalPx, 0)} <small>× ${fixed(pxH, 0)} px</small>`; $("blendPxOut").innerHTML = `${fixed(blendPx, 0)} <small>px</small>`; $("blendPctOut").innerHTML = `${fixed(blendPct, 1)} <small>%</small>`; $("blendAreaOut").innerHTML = `${fixed(totalArea, 2)} <small>m²</small>`;
+      }
+
+      function updateVideo() {
+        const seconds = durationSeconds(); const width = Math.max(1, Math.round(num("rawWidth", 1))), height = Math.max(1, Math.round(num("rawHeight", 1))), fps = Math.max(0, num("rawFps"));
+        const color = $("rawColor").value, chroma = $("rawChroma").value, bitDepth = num("rawBitDepth", 10), alpha = $("rawAlpha").checked;
+        $("rawChroma").disabled = color === "RGB";
+        const samples = color === "RGB" ? 3 : ({ "420": 1.5, "422": 2, "444": 3 }[chroma]);
+        const bytesPerPixel = (samples + (alpha ? 1 : 0)) * bitDepth / 8; const frameBytes = width * height * bytesPerPixel; const videoRate = frameBytes * fps;
+        const hasAudio = $("rawAudio").checked; const audioRate = hasAudio ? num("rawSampleRate") * 1000 * num("rawAudioDepth") / 8 * num("rawChannels") : 0; const totalBytes = (videoRate + audioRate) * seconds; const videoBytes = videoRate * seconds; const audioBytes = audioRate * seconds;
+        $("rawAudioSettings").classList.toggle("off", !hasAudio);
+        $("rawTotalOut").innerHTML = `${displayDecimalByte(totalBytes).replace(" ", "<span>")}</span>`; $("rawDetailOut").textContent = `映像 ${displayDecimalByte(videoBytes)} + 音声 ${displayDecimalByte(audioBytes)}`;
+        $("rawRateOut").innerHTML = `${fixed(videoRate * 8 / 1e9, 2)} <small>Gbps</small>`; $("rawFrameOut").innerHTML = `${fixed(frameBytes / 1e6, 2)} <small>MB</small>`; $("rawAudioRateOut").innerHTML = `${fixed(audioRate * 8 / 1e6, 2)} <small>Mbps</small>`; $("durationOut").textContent = durationText();
+        const mp4Width = Math.max(1, Math.round(num("mp4Width", 1))), mp4Height = Math.max(1, Math.round(num("mp4Height", 1))), mp4VideoRate = Math.max(0, num("mp4VideoRate")) * 1e6, mp4AudioRate = Math.max(0, num("mp4AudioRate")) * 1e3, overhead = Math.max(0, num("mp4Overhead")) / 100;
+        const mp4VideoBytes = mp4VideoRate / 8 * seconds, mp4AudioBytes = mp4AudioRate / 8 * seconds, mp4Total = (mp4VideoBytes + mp4AudioBytes) * (1 + overhead);
+        state.video = { seconds, totalBytes, videoRate, mp4Total, mp4VideoBytes, mp4AudioBytes, mp4VideoRate, mp4AudioRate };
+        $("mp4TotalOut").innerHTML = `${displayDecimalByte(mp4Total).replace(" ", "<span>")}</span>`; $("mp4DetailOut").textContent = `映像 ${fixed(mp4VideoRate / 1e6, 2)} Mbps + 音声 ${fixed(mp4AudioRate / 1e3, 0)} kbps / ${durationText()}`; $("mp4RateOut").innerHTML = `${fixed((mp4VideoRate + mp4AudioRate) / 1e6, 2)} <small>Mbps</small>`; $("mp4VideoSizeOut").innerHTML = `${displayDecimalByte(mp4VideoBytes)} <small></small>`; $("mp4AudioSizeOut").innerHTML = `${displayDecimalByte(mp4AudioBytes)} <small></small>`; $("mp4ResOut").innerHTML = `${fixed(mp4Width, 0)} <small>× ${fixed(mp4Height, 0)}</small>`;
+      }
+      function updateAll() { updateScreen(); updateLux(); updateThrow(); updateBlend(); updateVideo(); }
+
+      function activate(target) { state.active = target; document.querySelectorAll(".nav-item").forEach((button) => { const active = button.dataset.target === target; button.classList.toggle("active", active); button.setAttribute("aria-pressed", String(active)); }); document.querySelectorAll(".calc-section").forEach((section) => section.classList.toggle("active", section.id === `calc-${target}`)); const [eyebrow, title, description] = sectionMeta[target]; $("activeEyebrow").textContent = eyebrow; $("activeTitle").textContent = title; $("activeDescription").textContent = description; window.scrollTo({ top: 0, behavior: "smooth" }); }
+      function copyCurrentSummary() {
+        const s = state;
+        const summary = s.active === "screen" ? `【画面サイズ】\nアスペクト比：${$("screenAspect").value}\n対角：${fixed(s.screen.diagIn, 1)} inch（${fixed(s.screen.diagMm, 0)} mm）\n横幅：${fixed(s.screen.width, 0)} mm\n高さ：${fixed(s.screen.height, 0)} mm\n面積：${fixed(s.screen.area, 2)} m²` : s.active === "lux" ? `【投影照度】\n環境光：${fixed(s.lux.env, 0)} lx\nスクリーン面積：${fixed(s.lux.area, 2)} m²\nプロジェクター：${fixed(s.lux.lumens, 0)} ANSI lm\nスクリーン照度：${fixed(s.lux.actualLux, 0)} lx\n5:1に必要：${fixed(s.lux.needed5, 0)} ANSI lm\n10:1に必要：${fixed(s.lux.needed10, 0)} ANSI lm` : s.active === "throw" ? `【スローレシオ】\n引き距離（本体基準）：${fixed(s.throw.distance, 2)} m\nスローレシオ：${fixed(s.throw.ratio, 2)}:1\n画面横幅：${fixed(s.throw.geo.width / 1000, 3)} m\n画面高さ：${fixed(s.throw.geo.height / 1000, 3)} m` : s.active === "blend" ? `【2面ブレンド】\n1台分：${fixed(s.blend.widthM, 2)} m × ${fixed(s.blend.heightM, 2)} m\nブレンド：${fixed(s.blend.blendPx, 0)} px（${fixed(s.blend.blendPct, 1)}%）\n全体投影幅：${fixed(s.blend.totalWidth, 2)} m\n全体キャンバス：${fixed(s.blend.totalPx, 0)} × ${fixed(s.blend.pxH, 0)} px` : `【映像容量】\n映像尺：${durationText()}\n非圧縮合計：${displayDecimalByte(s.video.totalBytes)}\n非圧縮映像レート：${fixed(s.video.videoRate * 8 / 1e9, 2)} Gbps\nMP4推定容量：${displayDecimalByte(s.video.mp4Total)}`;
+        copyText(summary);
+      }
+
+      document.querySelectorAll(".nav-item").forEach((button) => button.addEventListener("click", () => activate(button.dataset.target)));
+      ["screenAspect", "screenInputMode", "screenValue", "screenDecimal"].forEach((id) => $(id).addEventListener("input", updateScreen));
+      ["luxArea", "projectorLumens", "screenGain", "luxEfficiency", "envLux"].forEach((id) => $(id).addEventListener("input", () => { if (id === "envLux") $("envPreset").value = "custom"; updateLux(); }));
+      $("envPreset").addEventListener("change", () => { if ($("envPreset").value !== "custom") { $("envLux").value = $("envPreset").value; updateLux(); } });
+      ["throwAspect", "throwDistance", "throwScreenSize", "throwSizeMode", "throwRatio"].forEach((id) => $(id).addEventListener("input", updateThrow));
+      $("throwSizeMode").addEventListener("change", () => { const mode = $("throwSizeMode").value; $("throwScreenSize").value = mode === "diagonal" ? state.throw.geo.diagIn.toFixed(1) : state.throw.geo.width.toFixed(0); updateThrow(); });
+      $("throwModeScreen").addEventListener("click", () => setThrowMode("screen")); $("throwModeRatio").addEventListener("click", () => setThrowMode("ratio"));
+      ["blendAspect", "blendHeight", "blendPixelWidth", "blendPixelHeight", "blendUnit", "blendValue"].forEach((id) => $(id).addEventListener("input", updateBlend));
+      ["durationH", "durationM", "durationS", "rawFps", "rawWidth", "rawHeight", "rawColor", "rawChroma", "rawBitDepth", "rawAlpha", "rawAudio", "rawSampleRate", "rawAudioDepth", "rawChannels", "mp4Width", "mp4Height", "mp4VideoRate", "mp4AudioRate", "mp4Overhead"].forEach((id) => $(id).addEventListener("input", updateVideo));
+      $("sendAreaToLux").addEventListener("click", () => { $("luxArea").value = state.screen.area.toFixed(2); updateLux(); activate("lux"); showToast("画面サイズの面積を照度計算へ反映しました。"); });
+      $("sendScreenToThrow").addEventListener("click", () => { $("throwAspect").value = $("screenAspect").value; $("throwSizeMode").value = "width"; $("throwScreenSize").value = state.screen.width.toFixed(0); setThrowMode("screen"); activate("throw"); showToast("画面サイズの横幅をスローレシオへ反映しました。"); });
+      $("sendThrowToLux").addEventListener("click", () => { $("luxArea").value = state.throw.geo.area.toFixed(2); updateLux(); activate("lux"); showToast("スローレシオ計算の面積を照度計算へ反映しました。"); });
+      $("sendBlendToVideo").addEventListener("click", () => { $("rawWidth").value = state.blend.totalPx; $("rawHeight").value = state.blend.pxH; $("mp4Width").value = state.blend.totalPx; $("mp4Height").value = state.blend.pxH; updateVideo(); activate("video"); showToast("2面ブレンドの全体キャンバスを映像容量へ反映しました。"); });
+      $("copyCurrent").addEventListener("click", copyCurrentSummary); $("copyLux").addEventListener("click", () => { activate("lux"); copyCurrentSummary(); }); $("copyVideo").addEventListener("click", () => { activate("video"); copyCurrentSummary(); });
+      $("resetAll").addEventListener("click", () => { document.querySelectorAll("input").forEach((input) => { if (input.type === "checkbox") input.checked = input.defaultChecked; else input.value = input.defaultValue; }); document.querySelectorAll("select").forEach((select) => select.value = select.defaultValue); state.throwMode = "screen"; setThrowMode("screen"); updateAll(); showToast("すべての入力を初期値に戻しました。"); });
+      document.querySelectorAll("select").forEach((select) => select.addEventListener("change", () => select.dispatchEvent(new Event("input"))));
+      updateAll();
+    })();
+  </script>
+</body>
+</html>
